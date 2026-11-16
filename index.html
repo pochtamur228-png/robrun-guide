@@ -118,6 +118,16 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 .it-tbl td:first-child{font-weight:600;white-space:nowrap}
 .it-tbl td{font-size:12.8px}
 .it-tbl .sub{font-size:11.5px}
+.chk{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid var(--line);cursor:pointer}
+.chk:first-of-type{border-top:0}
+.chk input{width:20px;height:20px;accent-color:var(--lime);flex:none;margin-top:1px}
+.chk.done span{color:var(--muted);text-decoration:line-through}
+.vid{display:flex;gap:12px;align-items:center;text-decoration:none;color:var(--fg)}
+.vid .p{width:40px;height:40px;border-radius:12px;background:#ff2b2b;display:grid;place-items:center;flex:none}
+.vid .p::after{content:"";border-left:13px solid #fff;border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:4px}
+.kn a{display:block;text-decoration:none;color:var(--fg);padding:7px 0;border-top:1px solid var(--line)}
+.kn a:first-child{border-top:0}
+.kn small{color:var(--muted);display:block}
 @media (max-width:380px){.roles{grid-template-columns:1fr}.burn{grid-template-columns:1fr}}
 </style>
 </head>
@@ -164,6 +174,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <div class="big" id="next-left">—</div>
       <div class="sub" id="next-at"></div>
     </div>
+    <div id="wipe-vid"></div>
     <h2>Что будет на рейде</h2>
     <div class="burn">
       <div class="card" style="--c:var(--siren)"><h3>🔥 Сгорает</h3><ul id="burn-lose"></ul></div>
@@ -259,7 +270,9 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
     <a class="card yt" id="yt" href="https://www.youtube.com/@Ronanmalkov" target="_blank" rel="noopener">
       <span class="p"></span><span><b>Гайды по ROB RUN на YouTube</b><br><span class="sub">Короткие разборы механик — подписывайся</span></span>
     </a>
-    <div class="card"><h3>🆕 Что нового <span class="sub" id="news-date"></span></h3><div id="news"></div></div>
+    <div class="card"><h3>📰 Официально от Kefir</h3><div class="kn" id="kn-list"><p class="note">Загружаю ленту…</p></div>
+      <p class="note">Последние посты разработчиков в Steam. Бот присылает новые посты сам — включается в /remind.</p></div>
+    <div class="card"><h3>🆕 Что нового в справочнике <span class="sub" id="news-date"></span></h3><div id="news"></div></div>
     <div class="card">
       <h3>📌 Пометки в справочнике</h3>
       <p><span class="tag game">в игре</span> — проверено в самой игре или в её справочнике.</p>
@@ -347,6 +360,18 @@ const GUIDE = [
   ["<b>05.11:</b> лимит сезонной валюты вырос с 350 до 1 000. Сезон 1 «Pure Chemistry» идёт до 4 декабря.", "r"],
   ["<b>14.11, официально:</b> проблемы со входом на EU-серверах, сервера перезапускали. US это не задело.", "ok"],
  ]},
+ {id:"routes", t:"💰 Маршруты заработка", items:[
+  ["<b>Первый час (гражданским).</b> Бесплатная машина на терминале → мусорки ради первых денег → счёт в банке → найти скупщиков и мотель Ленни → первый пистолет. Маску пока не надевай.", "ok"],
+  ["<b>Первая вылазка.</b> Магазин у дома: сумка набирается быстро. Продай скупщику в ту же вылазку, сразу забери деньги со стойки и уезжай из Looty Bay по мосту.", "ok"],
+  ["<b>Первый день.</b> Цель — участок: право на участок 1-го уровня (документы) → аренда в поселении с владельцем → стол отмывания (без комиссии, работает офлайн) → верстак для груза.", "ok"],
+  ["<b>Дальше — один бизнес.</b> Ферма или лаборатория: доведи одну цепочку до конца и только потом начинай вторую. После патча 04.11 бизнесы приносят заметно больше.", "ok"],
+  ["<b>Соло.</b> Ты стартуешь с 4-м уровнем известности (+35% у скупщика): магазины, ювелирки, дома, продажа в ту же вылазку. В лобовые перестрелки с группами не лезь — уходи на машине, по трамплинам.", "ok"],
+  ["<b>Дуо.</b> Известность со 2-го уровня. Один водит и держит машину у выхода, второй грабит. Груз — фургоном Longhorn Van.", "r"],
+  ["<b>Тройка.</b> Время для больших ограблений: банк с дрелью, золотое хранилище, галерея. Роли: разведчик, водитель, кто выносит. Готовь бартер у Подозрительной двери заранее.", "r"],
+  ["<b>Неделя до вайпа.</b> Наличку в кармане держать бессмысленно — её крадут. Всё имущество в штате к рейду превратится в тюремный срок и авторитет: чем богаче, тем больше срок.", "ok"],
+  ["<b>Коп как подработка.</b> Мало риска: снаряжение бесплатно, процент с конфиската, бонус за требование сдаться с сиреной.", "ok"],
+ ]},
+ {id:"checklists", t:"✅ Чек-листы", checks:true, items:[]},
  {id:"keys", t:"🎮 Управление", items:[
   ["<kbd>F</kbd> (зажать) — надеть или снять маску. Надел — ты преступник до выезда из Looty Bay.", "ok"],
   ["<kbd>E</kbd> — взаимодействие: двери, сейфы, электрощиты, арест (у копа). <kbd>Q</kbd> — сдаться копу.", "ok"],
@@ -565,6 +590,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:8, t:"17.11.2026", items:["«Инфо»: лента официальных постов Kefir; бот сам присылает новые посты (выключается в /remind).", "Новые разделы: «Маршруты заработка» (первый час, первый день, соло/дуо/тройка, неделя до вайпа) и «Чек-листы» с галочками.", "Видео-разборы с канала прямо в разделах — появляются по мере выхода роликов."]},
   {v:7, t:"16.11.2026", items:["Новая вкладка «Вещи»: оружие (урон, темп, магазин, цены открытия), броня, сумки, гранаты, лечение, инструменты.", "Новый раздел «Ветка прокачки»: как устроено дерево поставок и какой путь выбрать под свою роль."]},
   {v:6, t:"16.11.2026", items:["Новый раздел «Что изменилось за неделю»: официальный FAQ Kefir от 13.11, изменения 05.11 и 11.11.", "Обновлены советы про груз и прочность снаряжения."]},
   {v:5, t:"16.11.2026", items:["«Вся карта»: схема глобальной карты с точным расположением 10 районов — по официальному скриншоту Kefir.", "Новый раздел «Пирамида власти» и официальные детали: заработок копа, база, роль при въезде в город, особые постройки."]},
@@ -574,6 +600,56 @@ const NEWS = [
   {v:1, t:"16.11.2026", items:["Первая версия справочника: гайд, таймер федерального рейда, калькулятор скупщика и срока.", "Бот присылает напоминания о рейде в твоём штате и об открытии новых штатов."]},
 ];
 const TAG = {g:'<span class="tag game">в игре</span>', ok:'<span class="tag ok">точно</span>', r:'<span class="tag rumor">не подтверждено</span>'};
+
+/* ---------- Официальная лента Kefir (через бота: WORKER/kefir) ---------- */
+async function loadKefir(){
+  try {
+    const d = await (await fetch(WORKER + "/kefir")).json();
+    const day = t => new Date(t).toLocaleDateString("ru-RU", {day: "2-digit", month: "2-digit", year: "numeric"});
+    $("kn-list").innerHTML = (d.items || []).slice(0, 6).map(it => `<a href="${esc(it.url)}" target="_blank" rel="noopener"><small>${day(it.date)}</small>${esc(it.title)}</a>`).join("") || `<p class="note">Пока пусто.</p>`;
+  } catch (e) { $("kn-list").innerHTML = `<p class="note">Не удалось загрузить — нет связи.</p>`; }
+}
+
+/* ---------- Видео-разборы: шортсы канала к разделам (ссылка появляется после публикации) ---------- */
+const VIDEOS = {
+  fps:    {id: "F7p5-JqT7Pw", t: "ROB RUN лагает? +FPS за 30 секунд", at: "2026-11-16T17:00:00+03:00"},
+  money:  {id: "-kMgrYIMJvM", t: "Что делать с деньгами из мусорки", at: "2026-11-17T13:00:00+03:00"},
+  money2: {id: "W2MxyplGJPw", t: "Скупщик не берёт лут? Вот почему", at: "2026-11-17T19:00:00+03:00", sec: "money"},
+  start:  {id: "Q7j42aFK5qk", t: "3 ошибки новичка", at: "2026-11-18T13:00:00+03:00"},
+  roles:  {id: "hd5mIL73pmw", t: "Кем играть новичку?", at: "2026-11-18T19:00:00+03:00"},
+  wipe:   {id: "MrToIRO-LNw", t: "Что сгорит на вайпе (даже деньги в банке)", at: "2026-11-19T13:00:00+03:00"},
+  prison: {id: "xpCT5AeX7oU", t: "Зачем НАДО попадать в тюрьму", at: "2026-11-19T19:00:00+03:00"},
+  notor:  {id: "fPShAPa59vM", t: "Соло: скрытый бонус к деньгам", at: "2026-11-20T13:00:00+03:00"},
+  cops:   {id: "eeXj_27RAi8", t: "Как откупиться от копа и сохранить лут", at: "2026-11-20T19:00:00+03:00"},
+  cop:    {id: "mbteW_6rats", t: "За копа: не убивай — арестуй", at: "2026-11-21T13:00:00+03:00"},
+};
+function videosFor(sec){
+  return Object.entries(VIDEOS).filter(([k, v]) => (v.sec || k) === sec && Date.now() >= Date.parse(v.at))
+    .map(([, v]) => `<a class="card vid" href="https://youtube.com/shorts/${v.id}" target="_blank" rel="noopener"><span class="p"></span><span><b>Видео-разбор</b><br><span class="sub">${esc(v.t)}</span></span></a>`).join("");
+}
+
+/* ---------- Чек-листы (галочки хранятся в телефоне) ---------- */
+const CHECKS = {
+  heist: {t: "🦹 Перед ограблением", items: ["Разведал здание без маски: входы, камеры, персонал", "Машину поставил в стороне, мордой к выезду", "Есть отмычки — двери без тревоги", "Знаю, где электрощит / панель сигнализации", "Деньги на счёте в банке — хватит на взятку", "Решил заранее, когда ухожу: полная сумка или приехали копы", "Знаю, где ближайший скупщик и путь к мосту"]},
+  exit: {t: "🚗 Уезжаю с лутом", items: ["Продал в эту же вылазку — пока бонус известности", "Забрал деньги со стойки сразу", "Еду не мимо засад у точек сдачи и не через толпу", "Выезжаю из Looty Bay — только так снимается статус преступника", "Грязные деньги — к Ленни или на стол отмывания"]},
+  raid: {t: "🚨 За сутки до рейда", items: ["Проверил время рейда во вкладке «Вайп»", "Наличку не держу в кармане — украдут", "Вложил деньги в имущество: всё сгоревшее станет сроком", "Забрал налоги и награды из почты", "После рейда выйду в тот же штат"]},
+  first: {t: "🐣 Первый час", items: ["Взял бесплатную машину на терминале парковки", "Открыл счёт в банке без маски", "Нашёл на карте скупщиков и мотель Ленни", "Обыскал мусорки — первые деньги", "Купил первый пистолет", "Первое ограбление — магазин у дома"]},
+};
+let chk = load("chk", {});
+function renderChecks(){
+  return Object.entries(CHECKS).map(([k, c]) => `<div class="card" data-chk="${k}"><h3>${c.t}</h3>` +
+    c.items.map((x, i) => { const on = !!(chk[k] && chk[k][i]); return `<label class="chk${on ? " done" : ""}"><input type="checkbox" data-i="${i}"${on ? " checked" : ""}><span>${x}</span></label>`; }).join("") +
+    `<button class="btn ghost" data-reset="${k}" style="margin-top:6px">Сбросить</button></div>`).join("");
+}
+$("g-list").addEventListener("change", e => {
+  const box = e.target.closest("[data-chk]"); if (!box || !e.target.dataset.i) return;
+  const k = box.dataset.chk; chk[k] = chk[k] || {}; chk[k][e.target.dataset.i] = e.target.checked; save("chk", chk);
+  e.target.closest(".chk").classList.toggle("done", e.target.checked); haptic();
+});
+$("g-list").addEventListener("click", e => {
+  const b = e.target.closest("[data-reset]"); if (!b) return;
+  delete chk[b.dataset.reset]; save("chk", chk); haptic(); renderGuide();
+});
 
 /* ---------- Гайд ---------- */
 let gCur = load("gCur", "start");
@@ -586,7 +662,9 @@ function renderGuide(){
     <div class="role" style="--c:var(--siren)"><b>Преступник</b><span>Маска <kbd>F</kbd>. Грабит и продаёт. Смерть — теряет всё.</span></div>
     <div class="role" style="--c:var(--cop)"><b>Полицейский</b><span>Участок → Start Duty. Арестовывает, зарплата на счёт.</span></div></div>`;
   if (s.heist) html += `<div class="card"><table><tr><th>Цель</th><th>Нужно</th><th>Тревога</th></tr>${HEISTS.map(h => `<tr><td>${h[0]}</td><td><b>${h[1]}</b></td><td class="sub">${h[2]}</td></tr>`).join("")}</table></div>`;
-  html += `<div class="card"><h3>${s.t}</h3><ul>${s.items.map(i => `<li>${i[0]} ${TAG[i[1]]}</li>`).join("")}</ul></div>`;
+  if (s.checks) html += renderChecks();
+  if (s.items.length) html += `<div class="card"><h3>${s.t}</h3><ul>${s.items.map(i => `<li>${i[0]} ${TAG[i[1]]}</li>`).join("")}</ul></div>`;
+  html += videosFor(s.id);
   $("g-list").innerHTML = html;
 }
 $("g-chips").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b) return; gCur = b.dataset.s; save("gCur", gCur); haptic(); renderGuide(); });
@@ -860,6 +938,7 @@ function searchIndex(){
   const out = [];
   GUIDE.forEach(s => s.items.forEach(i => out.push({where: s.t, text: norm(i[0]), html: i[0], go: () => { gCur = s.id; save("gCur", gCur); renderGuide(); show("guide"); }})));
   HEISTS.forEach(h => out.push({where: "🏦 Ограбления", text: norm(h.join(" ")), html: `${h[0]}: нужно <b>${h[1]}</b>`, go: () => { gCur = "heist"; renderGuide(); show("guide"); }}));
+  Object.values(CHECKS).forEach(c => c.items.forEach(x => out.push({where: "✅ " + c.t, text: norm(x + " " + c.t), html: x, go: () => { gCur = "checklists"; save("gCur", gCur); renderGuide(); show("guide"); }})));
   ITEMS.forEach(c => c.rows.forEach(r => out.push({where: "🎒 " + c.t, text: norm(r.join(" ") + " " + c.t), html: `<b>${r[0]}</b> — ${r[1]}; ${r[2]}`, go: () => { itCur = c.id; save("itCur", itCur); renderItems(); show("items"); }})));
   [...LOSE.map(x => "Сгорает на рейде: " + x), ...KEEP.map(x => "Остаётся после рейда: " + x)].forEach(x => out.push({where: "🚨 Вайп", text: norm(x), html: x, go: () => show("wipe")}));
   return out;
@@ -905,7 +984,7 @@ $("fb-send").addEventListener("click", async () => {
 });
 
 /* ---------- Старт ---------- */
-renderGuide(); renderWipe(); renderSrvList(); loadSrv(); renderMap(); renderDesert(); renderItems(); calc(); renderNews();
+renderGuide(); renderWipe(); renderSrvList(); loadKefir(); $("wipe-vid").innerHTML = videosFor("wipe"); loadSrv(); renderMap(); renderDesert(); renderItems(); calc(); renderNews();
 setInterval(renderWipe, 30e3);
 const startTab = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("tab");
 if (["map", "items", "wipe", "calc", "info"].includes(startTab)) show(startTab);
