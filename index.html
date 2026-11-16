@@ -8,40 +8,51 @@
 <link rel="apple-touch-icon" href="assets/icon-180.png">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rubik:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,800;1,900&family=Rubik:wght@400;500;700&display=swap">
 <style>
 /* ROB RUN Справочник — Telegram Mini App.
-   Тема «Ночное ограбление»: всегда тёмная, асфальт, зелёные купюры, жёлтый сигнал тревоги,
-   красно-синие мигалки полиции. От темы Telegram не зависит. */
+   Тема «Looty Bay»: в духе заставки игры — солнечное небо над городом, наклонный жирный логотип,
+   лаймовая полоса загрузки. Фоны — кадры из своего геймплея (assets/make_bg.py), не официальный арт.
+   Всегда тёмная, от темы Telegram не зависит. */
 :root{
-  --bg:#0a0c0f; --bg2:#13171c; --bg3:#1b2128; --line:#28303a;
-  --fg:#ece9e1; --muted:#8b95a1;
-  --cash:#3fd17a; --cash-lo:#1d6b3e; --alarm:#f2c230; --cop:#3d7bff; --siren:#ff4a4a;
-  --btn:var(--cash); --btn-fg:#04140a; --link:#6fe3a0;
+  --bg:#081019; --bg2:rgba(12,20,30,.78); --bg3:rgba(255,255,255,.07); --line:rgba(255,255,255,.12);
+  --fg:#f3f1ea; --muted:#a9b6c4;
+  --lime:#c6ef3a; --sky:#4fb3ff; --sand:#f5b860;
+  --cash:var(--lime); --cash-lo:#4d6612; --alarm:#ffc93c; --cop:#4f8dff; --siren:#ff5a4f;
+  --btn:var(--lime); --btn-fg:#11180a; --link:#8fd0ff;
   --font:"Rubik",-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;
-  --display:"Russo One","Rubik","Arial Black",sans-serif;
+  --display:"Montserrat","Rubik","Arial Black",sans-serif;
   color-scheme:dark;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 var(--font)}
 body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+/* размытые пальмы Looty Bay за всем приложением (fixed-слой — background-attachment:fixed не работает в iOS) */
+.scene{position:fixed;inset:0;z-index:-1;background:url(assets/bg.jpg) center/cover no-repeat,var(--bg)}
+.scene::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,25,.15),rgba(8,16,25,.6) 50%,rgba(8,16,25,.92))}
+.hero{position:relative;margin:-12px calc(-1*max(16px,env(safe-area-inset-left,0px))) 0;height:210px;overflow:hidden;
+  background:url(assets/hero.jpg) center 62%/cover no-repeat;border-bottom:3px solid var(--lime)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,25,0) 45%,rgba(8,16,25,.7) 100%),
+  linear-gradient(90deg,rgba(8,16,25,.35),rgba(8,16,25,0) 50%)}
+.hero .logo{position:absolute;left:18px;bottom:16px;z-index:1;font:900 italic 52px/.86 var(--display);letter-spacing:-.02em;color:#fff;
+  text-shadow:0 3px 0 rgba(0,0,0,.25),0 8px 24px rgba(0,0,0,.45);transform:skewX(-4deg)}
+.hero .logo small{display:block;font:800 italic 13px/1 var(--display);letter-spacing:.14em;color:var(--lime);margin-top:8px;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.hero .icon-btn{position:absolute;top:12px;right:14px;z-index:1;background:rgba(8,16,25,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.loadbar{height:4px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}
+.loadbar i{display:block;height:100%;width:38%;background:var(--lime);box-shadow:0 0 12px var(--lime)}
 button,input,select{font:inherit;color:inherit}
 a{color:var(--link)}
 .wrap{padding:12px max(16px,env(safe-area-inset-left,0px)) 12px max(16px,env(safe-area-inset-right,0px));max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
-header.top{display:flex;align-items:center;gap:10px}
-header.top .logo{font-family:var(--display);font-size:22px;letter-spacing:.02em;line-height:1}
-header.top .logo b{color:var(--cash);font-weight:400}
-header.top .sp{flex:1}
 .icon-btn{border:0;background:var(--bg2);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;font-size:18px}
-.tape{height:6px;border-radius:3px;background:repeating-linear-gradient(-45deg,var(--alarm) 0 10px,#111 10px 20px);opacity:.85}
-h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:8px 0 0;font-weight:600}
+h2{font:800 italic 13px var(--display);text-transform:uppercase;letter-spacing:.08em;color:var(--sand);margin:8px 0 0}
 .sub{color:var(--muted);font-size:13px;margin:0}
-.card{background:var(--bg2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
-.card h3{margin:0;font-size:16px;display:flex;gap:8px;align-items:center}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.card h3{margin:0;font:800 italic 17px/1.2 var(--display);display:flex;gap:8px;align-items:center}
 .card ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
 .card p{margin:0}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{border:0;background:var(--bg2);padding:7px 12px;border-radius:999px;font-size:13px;cursor:pointer}
+.chip{border:1px solid var(--line);background:var(--bg2);padding:7px 12px;border-radius:999px;font-size:13px;cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .chip[aria-pressed="true"]{background:var(--btn);color:var(--btn-fg);font-weight:600}
 .tag{font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:6px;vertical-align:1px;white-space:nowrap}
 .tag.ok{color:var(--cash);border:1px solid color-mix(in srgb,var(--cash) 45%,transparent)}
@@ -52,16 +63,16 @@ table{width:100%;border-collapse:collapse;font-size:13.5px}
 td,th{padding:6px 4px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
 th{color:var(--muted);font-weight:500;font-size:12px;border-top:0}
 .roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.role{background:var(--bg2);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--c)}
-.role b{font-family:var(--display);font-weight:400;font-size:14px}
+.role{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--c);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.role b{font:900 italic 14px var(--display)}
 .role span{font-size:12.5px;color:var(--muted)}
-.big{font-family:var(--display);font-size:34px;line-height:1.05;letter-spacing:.01em}
-.timer{background:linear-gradient(135deg,#2a0f12,#13171c 60%);border:1px solid #4a1d22}
+.big{font:900 italic 36px/1.05 var(--display);letter-spacing:-.01em}
+.timer{background:linear-gradient(135deg,rgba(70,16,18,.85),rgba(12,20,30,.8) 60%);border:1px solid rgba(255,90,79,.35)}
 .timer .big{color:var(--siren)}
-.timer.safe{background:linear-gradient(135deg,#0e2418,#13171c 60%);border-color:#1f4a31}
+.timer.safe{background:linear-gradient(135deg,rgba(60,80,14,.8),rgba(12,20,30,.8) 60%);border-color:rgba(198,239,58,.35)}
 .timer.safe .big{color:var(--cash)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-select,input[type=number],input[type=text],textarea{background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;outline:none;width:100%}
+select,input[type=number],input[type=text],textarea{background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;outline:none;width:100%}
 textarea{min-height:110px;resize:vertical;font:inherit}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btn{border:0;border-radius:12px;padding:12px 14px;background:var(--btn);color:var(--btn-fg);font-weight:700;cursor:pointer}
@@ -72,14 +83,14 @@ textarea{min-height:110px;resize:vertical;font:inherit}
 .list{display:flex;flex-direction:column;gap:8px}
 .burn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .burn .card{border-top:3px solid var(--c)}
-nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#090b0e;border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
-nav.bar .in{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;max-width:640px}
+nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(8,14,22,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:2px solid var(--lime);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav.bar .in{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;width:100%;max-width:640px}
 nav.bar button{border:0;background:none;padding:6px 2px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted);cursor:pointer;position:relative}
 nav.bar button i{font-style:normal;font-size:20px;line-height:1}
-nav.bar button[aria-current="page"]{color:var(--fg);background:var(--bg2)}
+nav.bar button[aria-current="page"]{color:var(--btn-fg);background:var(--lime);font-weight:700}
 nav.bar .dot{position:absolute;top:4px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--siren)}
 section[hidden]{display:none!important}
-.overlay{position:fixed;inset:0;z-index:30;background:var(--bg);overflow:auto}
+.overlay{position:fixed;inset:0;z-index:30;background:rgba(8,16,25,.96);overflow:auto}
 .overlay .wrap{padding-top:14px}
 .hit{background:var(--bg2);border-radius:12px;padding:10px 12px;cursor:pointer}
 .hit small{color:var(--muted);display:block}
@@ -89,18 +100,29 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 .yt{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#2b0a0a,#13171c);border:1px solid #4d1515;text-decoration:none;color:var(--fg)}
 .yt .p{width:44px;height:32px;border-radius:9px;background:#ff2b2b;display:grid;place-items:center;flex:none}
 .yt .p::after{content:"";border-left:12px solid #fff;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+.srv{display:flex;justify-content:space-between;gap:8px;align-items:center;background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:12px;padding:9px 12px;cursor:pointer}
+.srv b{font-weight:600}.srv small{color:var(--muted);white-space:nowrap}
+.srv[aria-selected="true"]{border-color:var(--lime);background:rgba(198,239,58,.12)}
+.mapbox{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#2a8ea3}
+.mapbox svg{display:block;width:100%;height:auto}
+.mk{cursor:pointer}.mk circle{stroke:#081019;stroke-width:2}.mk text{font:700 13px var(--font);fill:#081019;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.mk.on circle{stroke:#fff;stroke-width:3}
+.district{font:900 italic 15px var(--display);fill:rgba(8,16,25,.55);letter-spacing:.06em;text-anchor:middle}
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:14px;height:14px;border-radius:50%;display:inline-block;border:2px solid #081019}
 @media (max-width:380px){.roles{grid-template-columns:1fr}.burn{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
+<div class="scene" aria-hidden="true"></div>
 <div class="wrap">
-  <header class="top">
-    <div class="logo">ROB <b>RUN</b><div class="sub" style="font-family:var(--font);font-size:12px;margin-top:3px">Справочник игрока</div></div>
-    <div class="sp"></div>
+  <header class="hero">
+    <div class="logo">ROB<br>RUN<small>СПРАВОЧНИК ИГРОКА</small></div>
     <button class="icon-btn" id="btn-search" aria-label="Поиск">🔍</button>
   </header>
-  <div class="tape"></div>
+  <div class="loadbar" aria-hidden="true"><i id="loadbar"></i></div>
 
   <!-- ===== ГАЙД ===== -->
   <section id="v-guide">
@@ -111,23 +133,19 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
   <!-- ===== ВАЙП ===== -->
   <section id="v-wipe" hidden>
     <div class="card timer" id="raid-card">
-      <div class="sub">Федеральный рейд в твоём штате</div>
+      <div class="sub" id="raid-title">Федеральный рейд в твоём штате</div>
       <div class="big" id="raid-left">—</div>
-      <div class="sub" id="raid-at">Укажи, когда открылся твой штат</div>
+      <div class="sub" id="raid-at">Найди свой штат ниже — время подставится само</div>
     </div>
     <div class="card">
       <h3>Мой штат</h3>
-      <div class="grid2">
-        <label><span class="sub">Регион</span>
-          <select id="raid-region"><option value="eu">EU (Европа)</option><option value="us">East US</option></select></label>
-        <label><span class="sub">Штат открылся</span>
-          <select id="raid-day"></select></label>
-      </div>
-      <p class="note">Рейд — через 7 дней после открытия штата. Новые штаты открываются каждый день: EU в 20:00 МСК, East US в 20:00 по Нью-Йорку. Kefir предупреждает, что срок может меняться.</p>
+      <input type="text" id="srv-q" placeholder="Название или номер: Desert Campos, 5393" autocomplete="off" enterkeyhint="search">
+      <div class="list" id="srv-list"></div>
+      <p class="note" id="srv-src">Kefir не публикует расписание вайпов. Точное время открытия каждого штата есть только в игре, в списке штатов, — его собирает трекер robrunstatus.com, данные отсюда обновляются раз в 30 минут.</p>
       <button class="btn ghost" id="raid-bot">🔔 Напоминать в Telegram за сутки и за 2 часа</button>
     </div>
     <div class="card timer safe">
-      <div class="sub">Следующий новый штат (<span id="next-region">EU</span>)</div>
+      <div class="sub">Следующий новый штат EU (примерно)</div>
       <div class="big" id="next-left">—</div>
       <div class="sub" id="next-at"></div>
     </div>
@@ -141,6 +159,40 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <li>Всё сгоревшее превращается в <b>тюремный срок и авторитет</b>: чем богаче был, тем больше срок.</li>
       <li>После рейда выходи в <b>тот же штат</b>: в другом начнёшь с нуля.</li>
       <li>Баннер «Федеральный рейд через 40 минут» в Looty Bay — это облава в городе, <b>не вайп</b>.</li>
+    </ul></div>
+  </section>
+
+  <!-- ===== КАРТА ===== -->
+  <section id="v-map" hidden>
+    <div class="mapbox">
+      <svg id="map" viewBox="0 0 1000 420" role="img" aria-label="Схема Looty Bay">
+        <defs><pattern id="wv" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><rect width="24" height="24" fill="#2a8ea3"/><rect width="24" height="6" fill="#2f97ab"/></pattern></defs>
+        <rect width="1000" height="420" fill="url(#wv)"/>
+        <!-- острова: своя упрощённая схема по карте из игры -->
+        <path d="M150 0 H390 Q405 60 380 120 Q350 175 368 230 Q390 300 360 360 Q330 410 300 412 Q250 418 225 395 Q160 360 140 300 Q105 220 118 140 Q125 60 150 0Z" fill="#f2e3c4"/>
+        <path d="M150 0 H390 Q405 60 380 120 Q350 175 368 230 Q390 300 360 360 Q330 410 300 412" fill="none" stroke="#e7cf9c" stroke-width="10"/>
+        <path d="M425 125 Q450 105 500 112 Q560 118 575 160 Q580 230 565 300 Q560 330 540 335 L540 395 Q520 412 480 410 Q440 405 430 380 L432 335 Q412 320 410 280 Q405 200 425 125Z" fill="#f2e3c4"/>
+        <path d="M600 0 H870 Q880 120 868 250 Q860 360 840 400 Q780 418 700 412 Q622 405 605 380 Q590 300 600 200 Q605 90 600 0Z" fill="#f2e3c4"/>
+        <!-- дороги и мосты -->
+        <g stroke="#9a948a" stroke-linecap="round" fill="none">
+          <path d="M0 307 H1000" stroke-width="12"/>
+          <path d="M390 52 Q490 38 600 58" stroke-width="10"/>
+          <path d="M180 10 Q160 150 175 300 M345 30 Q330 150 350 300 M630 20 V390 M820 20 V390 M630 120 H820 M630 220 H820 M700 20 V390" stroke-width="7"/>
+          <path d="M455 150 Q500 200 545 150 M500 200 V300 M440 245 H560" stroke-width="6"/>
+        </g>
+        <g stroke="#fff" stroke-dasharray="10 9" stroke-width="2"><path d="M0 307 H1000"/></g>
+        <text class="district" x="250" y="175">САННИ-БИЧ</text>
+        <text class="district" x="487" y="372">ПАЛМСАЙД</text>
+        <text class="district" x="735" y="215">ДАУНТАУН</text>
+        <g id="map-pts"></g>
+      </svg>
+    </div>
+    <div class="legend" id="map-legend"></div>
+    <div class="card" id="map-info"><h3>🗺 Looty Bay</h3><p class="sub">Нажми на значок на схеме. Схема упрощённая: точные места смотри на карте в игре (там есть поиск предметов по названию и слои).</p></div>
+    <div class="card"><h3>📍 Отдельные карты в игре</h3><ul>
+      <li><b>Мотель Ленни</b> — стартовая точка, хранение кэша, отмывка за процент, Подозрительная дверь (бартер).</li>
+      <li><b>Тюрьма</b> — выбор штата, тату-мастер, побег через унитаз в камере.</li>
+      <li><b>Центр продаж района</b> — платит больше, но только жителям района.</li>
     </ul></div>
   </section>
 
@@ -214,6 +266,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 
 <nav class="bar"><div class="in">
   <button data-v="guide" aria-current="page"><i>📖</i>Гайд</button>
+  <button data-v="map"><i>🗺</i>Карта</button>
   <button data-v="wipe"><i>🚨</i>Вайп</button>
   <button data-v="calc"><i>🧮</i>Счёт</button>
   <button data-v="info"><i>ℹ️</i>Инфо</button>
@@ -226,7 +279,7 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const tg = window.Telegram && window.Telegram.WebApp;
 const inTg = !!(tg && tg.initData);
-if (inTg) { tg.ready(); tg.expand(); try { tg.setHeaderColor("#0a0c0f"); tg.setBackgroundColor("#0a0c0f"); tg.setBottomBarColor && tg.setBottomBarColor("#090b0e"); } catch (e) {} }
+if (inTg) { tg.ready(); tg.expand(); try { tg.setHeaderColor("#081019"); tg.setBackgroundColor("#081019"); tg.setBottomBarColor && tg.setBottomBarColor("#081019"); } catch (e) {} }
 const haptic = k => { try { if (tg && tg.HapticFeedback) k ? tg.HapticFeedback.notificationOccurred(k) : tg.HapticFeedback.selectionChanged(); } catch (e) {} };
 const save = (k, v) => { try { localStorage.setItem("rr:" + k, JSON.stringify(v)); } catch (e) {} };
 const load = (k, d) => { try { const v = localStorage.getItem("rr:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
@@ -268,6 +321,8 @@ const GUIDE = [
   ["<b>Взятку платят со счёта в банке</b>, не наличкой. Принял коп взятку — уходишь со всем лутом.", "ok"],
   ["Сдаться лучше, чем умереть: умер преступником — потерял всё.", "ok"],
   ["Уличный арест не даёт тюремного срока, только камеру.", "ok"],
+  ["Взятка <b>не спасает груз в машине</b>: он остаётся в городе. Если вызвать машину домой — груз выпадет там.", "r"],
+  ["Выйти из игры посреди опасности = персонажа убьют.", "r"],
   ["Взятки — шагами по 10 000 $ до 200 000 $.", "r"],
  ]},
  {id:"cop", t:"👮 Играть за копа", items:[
@@ -275,6 +330,8 @@ const GUIDE = [
   ["Деньги за правомерные действия идут на счёт, в конце смены выдают конфискат на заработанную сумму.", "g"],
   ["<b>За задержание живым — дополнительная награда.</b> Не убивай — арестуй.", "g"],
   ["Не арестовывай одного посреди банды: отобьют.", "ok"],
+  ["Снаряжение и машина копу выдаются бесплатно. За убийство сдавшегося или арестованного не платят ничего.", "r"],
+  ["На свежем сервере у патрульных первые ~30 минут только пистолеты. Каждая смерть подряд удлиняет ожидание возрождения копа.", "ok"],
   ["Арест ≈ 9 000–15 000 $, убийство ≈ 2 000 $.", "r"],
  ]},
  {id:"heist", t:"🏦 Ограбления", heist:true, items:[
@@ -284,6 +341,42 @@ const GUIDE = [
   ["Лут в безопасности только <b>за пределами Looty Bay</b>: копы перекрывают мосты.", "ok"],
   ["Бартер за инструменты — у <b>Подозрительной двери</b> в мотеле Ленни.", "ok"],
   ["Банк — до 424 000 $ за удачный заход.", "r"],
+  ["Рецепты у Подозрительной двери: <b>дрель</b> = 2 заполненных USB-хакера + экшн-камера + 50 000 $; <b>ID-карта банка</b> = заполненные «Ключи ячеек»; <b>стеклорез</b> = 3 заполненных кодовых планшета; <b>ID-карта оружейной</b> = 20 улик.", "r"],
+  ["Магазины: сигнализацию отключают у электрощита снаружи (<kbd>E</kbd>) или вскрытием панели безопасности (≈5 с хака).", "r"],
+  ["Жилые дома: отключи сигнализацию снаружи, держи жильцов на прицеле и обновляй угрозу, пока обыскиваешь мебель.", "r"],
+ ]},
+ {id:"secrets", t:"🔑 Ключи и секреты", items:[
+  ["Каждый ключ — от <b>конкретного здания</b>: «Ключ от сейфа: стрип-клуб», «Ключ от комнаты: заправка (левая)». В другом здании не подойдёт.", "ok"],
+  ["<b>Тайный подвал на заправке</b> (Даунтаун): в сервисном центре под автоподъёмником. Синяя кнопка лифта на стойке опускает подъёмник — открывается лестница. Ключ не нужен.", "r"],
+  ["В подвале две комнаты: левая — ключ комнаты №5, правая — №6. Там большие сейфы (мини-дрель), шкафы и компьютеры, которые взламывает USB-хакер. Кнопкой внизу можно закрыть проход за собой.", "r"],
+  ["Мини-дрель вскрывает большой сейф примерно за 60 секунд. Продаётся на Trade Laptop (уровень II) за ≈18 000 $ после разблокировки поставки.", "r"],
+  ["Отмычка — 99 $ на Trade Laptop (сначала разблокировка поставки ≈5 000 $). Открывает двери без тревоги и багажники чужих машин, даже полицейских.", "r"],
+  ["Дым над зданием = кто-то варит в лаборатории. Хорошая цель для налёта.", "ok"],
+  ["На карте в игре есть <b>поиск предметов по названию</b> и переключаемые слои.", "r"],
+  ["Быстрый перенос вещей: зажми <kbd>G</kbd> и веди курсором по предметам. Осторожно: рядом кнопка «быстро удалить».", "r"],
+ ]},
+ {id:"loot", t:"📦 Лут и груз", items:[
+  ["Для первого ограбления — <b>магазины у дома</b>: сумка набивается быстро. Ювелирки — дорогой груз, но уходить надо быстро. Галерея — ценный и лёгкий лут.", "r"],
+  ["<b>Груз</b> (cargo) — ящики, статуи, сейфы. Запечатанный груз выгоднее продать контрабандисту: цена предсказуема. Вскрыть его можно на <b>верстаке для груза</b> на своей базе — внутри бывает и дороже, и дешевле.", "r"],
+  ["Ориентиры цен груза: уникальный ящик коллекции ≈500 000 $, золотая статуя ≈250 000 $, дорогой сейф ≈200 000 $, ценный или редкий ящик ≈150 000 $, переносной сейф ≈100 000 $, банковский мешок ≈60 000 $, чемоданы ≈25 000 $.", "r"],
+  ["Машина <b>Buletti не возит груз</b> (патч 04.11). Фургоны вмещают больше груза.", "ok"],
+  ["Мусорки — деньги, когда нет снаряжения или надо восстановиться после провала. Патч 04.11 увеличил наличку в мусорках.", "ok"],
+  ["Ленни в мотеле хранит только наличку — не краденое и не оружие. Для лута нужна своя база.", "ok"],
+ ]},
+ {id:"notor", t:"🔥 Известность", items:[
+  ["Известность растёт, пока ты нарушаешь закон <b>за одну вылазку</b> в город, и <b>сбрасывается, когда уезжаешь</b>. Продавай в ту же вылазку, чтобы бонус не пропал.", "ok"],
+  ["Бонус у скупщика: ур. 2 +10%, 3 +20%, 4 +35%, 5 +50%. У контрабандиста: +5/10/15/25%.", "g"],
+  ["Соло стартует с 4-го уровня, дуо — со 2-го. Полная тройка начинает с нуля.", "ok"],
+  ["После сделки скупщик показывает твой текущий уровень известности.", "r"],
+  ["Каждый убитый мирный — очко розыска, максимум 3.", "r"],
+  ["Ставь себе условие выхода заранее: полная сумка или приехала полиция — уходишь.", "ok"],
+ ]},
+ {id:"market", t:"🛒 Рынок и исследования", items:[
+  ["Чёрный рынок — через <b>Trade Laptop</b>. Сначала разблокируешь поставку (исследование), потом покупаешь сам товар — исследование вещь не даёт.", "r"],
+  ["Исследования и чёрный рынок оплачиваются <b>грязной</b> наличкой.", "r"],
+  ["Первые машины для покупки открываются в дереве исследований Ларри. Своя машина — только после дома; на прокатную нельзя ставить улучшения.", "r"],
+  ["Значки полиции — одноразовые: 8 000 / 40 000 / 100 000 $; выбор зависит от района.", "r"],
+  ["Высокий авторитет открывает больше товаров на чёрном рынке.", "ok"],
  ]},
  {id:"base", t:"🏠 База и поселения", items:[
   ["Строить можно только в поселении, у которого есть владелец: найди свободный участок и заплати аренду у таблички.", "ok"],
@@ -292,6 +385,9 @@ const GUIDE = [
   ["<b>Мастер-ключ</b> открывает чужие хранилища — базы реально грабят.", "ok"],
   ["Бизнесы на базе (ферма, лаборатория) после патча 04.11 приносят заметно больше.", "ok"],
   ["Ферма — от 320 000 $, лаборатория — от 365 000 $. Дым над зданием выдаёт работающую лабораторию.", "r"],
+  ["Участок даёт склад, точку возрождения и производство. Стол отмывания переводит грязные деньги на счёт <b>без комиссии</b> и работает офлайн.", "ok"],
+  ["Чем богаче база, тем больше на неё налётов. Предохранители в системе безопасности замедляют рейдеров; дешифратор её вскрывает.", "ok"],
+  ["<b>Пирамида власти</b>: 5 ступеней — от Бродяги до Теневого губернатора. Чем выше ступень, тем большую долю берёшь с тех, кто ниже.", "ok"],
  ]},
  {id:"prison", t:"⛓ Тюрьма и авторитет", items:[
   ["Тюрьма — это экран выбора штата. Срок — не время ожидания, а счётчик прогресса. Выйти можно когда угодно.", "ok"],
@@ -300,24 +396,29 @@ const GUIDE = [
   ["Высокий авторитет открывает больше товаров на чёрном рынке. Тату можно скрыть.", "ok"],
   ["Сдаться федералам самому = потерять всё имущество на сервере, выйти из клана, сгорят неполученные награды из почты.", "ok"],
   ["Долг Ленни 1 000 000 $: если погасить — +10 лет срока и скин.", "r"],
+  ["Сменить штат: глобальная карта → тюрьма → «Сдаться федералам». Имущество в старом штате пропадает.", "ok"],
+  ["Потолок срока за один штат: одни пишут 40 лет, другие — 50.", "r"],
  ]},
  {id:"fps", t:"⚡ Больше FPS", items:[
   ["<b>«Разрешение рендера»</b> ставь ровно <b>1,0</b>. Больше единицы — игра рисует картинку больше экрана.", "g"],
   ["Выключи HBAO, отражения (SSR), размытие в движении и глубину резкости — разницы почти не видно.", "g"],
   ["Ограничь FPS в панели видеокарты — просадки в толпе станут мягче.", "g"],
   ["В толпе упор в процессор — это ограничение самой игры, не твоего ПК.", "g"],
+  ["Игра вылетает на процессорах без поддержки <b>AVX2</b> — так пишет сама игра в сообщении об ошибке.", "r"],
  ]},
 ];
 const HEISTS = [
-  ["Хранилище банка", "Дрель", "весь город, дрель шумная"],
-  ["Золотое хранилище", "ID-карта", "оповещение городу"],
-  ["Галерея «BIG EGG»", "Стеклорез", "стекло включает тревогу"],
-  ["Машина Buletti (Grand Hotel)", "Глушилка", "оповещение городу"],
-  ["Оружейная участка", "ID-карта", "оповещение городу"],
+  ["Хранилище банка", "Дрель", "весь город; дрель долгая и шумная"],
+  ["Золотое хранилище", "ID-карта", "весь город; слитки ≈ 52 000 $, стопки по 3–9"],
+  ["Галерея «BIG EGG»", "Стеклорез", "весь город; стекло может включить тревогу"],
+  ["Машина в Grand Hotel", "Глушилка", "весь город; где взять глушилку — неизвестно"],
+  ["Оружейная участка", "ID-карта", "весь город"],
 ];
-const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Машины и склады <span class='tag rumor'>?</span>"];
-const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin <span class='tag rumor'>?</span>"];
+const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
+const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:3, t:"16.11.2026", items:["Таймер рейда теперь автоматический: найди свой штат по названию — точное время подставится само.", "Новая вкладка «Карта»: схема Looty Bay со скупщиками, контрабандистами, банком, участком и заправкой.", "Новые разделы: ключи и секреты, лут и груз, известность, рынок и исследования; дополнены ограбления, коп, тюрьма."]},
+  {v:2, t:"16.11.2026", items:["Новый дизайн в стиле игры: вид на Looty Bay в шапке, пальмы на фоне.", "Полоса под шапкой показывает, сколько прошло от недели до рейда в твоём штате."]},
   {v:1, t:"16.11.2026", items:["Первая версия справочника: гайд, таймер федерального рейда, калькулятор скупщика и срока.", "Бот присылает напоминания о рейде в твоём штате и об открытии новых штатов."]},
 ];
 const TAG = {g:'<span class="tag game">в игре</span>', ok:'<span class="tag ok">точно</span>', r:'<span class="tag rumor">не подтверждено</span>'};
@@ -338,64 +439,103 @@ function renderGuide(){
 }
 $("g-chips").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b) return; gCur = b.dataset.s; save("gCur", gCur); haptic(); renderGuide(); });
 
-/* ---------- Вайп ---------- */
-// Открытие штата: EU — 17:00 UTC (20:00 МСК), East US — 20:00 по Нью-Йорку.
-function openUtc(region, dayOffset){
-  const now = new Date();
-  if (region === "eu") {
-    const d = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 17);
-    return d - dayOffset * 864e5;
-  }
-  // 20:00 в Нью-Йорку с учётом летнего времени
-  const ny = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
-  const utc = new Date(now.toLocaleString("en-US", {timeZone: "UTC"}));
-  const off = Math.round((utc - ny) / 36e5);           // 4 или 5 часов, не зависит от пояса телефона
-  const local = new Date(now.getTime() - off * 36e5);
-  return Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate(), 20 + off) - dayOffset * 864e5;
-}
+/* ---------- Вайп ----------
+   Время рейда — по списку штатов из трекера robrunstatus.com (он берёт его из списка штатов в игре),
+   бот отдаёт его как JSON: GET WORKER/servers → {at, servers:[[id, name, region, wipeMs], …]}. */
 const fmtLeft = ms => { if (ms <= 0) return "уже был"; const h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4); return h >= 24 ? `${Math.floor(h / 24)} д ${h % 24} ч` : `${h} ч ${String(m).padStart(2, "0")} м`; };
 const fmtAt = ms => new Date(ms).toLocaleString("ru-RU", {weekday:"short", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit", timeZone:"Europe/Moscow"}) + " МСК";
-let raid = load("raid", null);   // {region, open: ms}
-function fillDays(){
-  const labels = ["сегодня", "вчера", "2 дня назад", "3 дня назад", "4 дня назад", "5 дней назад", "6 дней назад"];
-  $("raid-day").innerHTML = `<option value="">— выбери —</option>` + labels.map((l, i) => `<option value="${i}">${l}</option>`).join("");
-  if (raid) {
-    $("raid-region").value = raid.region;
-    let raidAt = raid.open + 7 * 864e5;
-    while (raidAt < Date.now()) { raid.open += 7 * 864e5; raidAt += 7 * 864e5; }   // штат пережил рейд — следующий цикл
-    const off = Math.round((openUtc(raid.region, 0) - raid.open) / 864e5);
-    if (off >= 0 && off <= 6) $("raid-day").value = String(off);
-  }
+let SRV = load("srvList", null);          // кэш списка штатов (на случай без сети)
+let mySrv = load("srv", null);            // {id, name, region, wipe}
+const nrm = t => String(t).toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+function findSrv(q){
+  const n = nrm(q); if (!SRV || !n) return [];
+  const dg = n.match(/\d{3,5}/);
+  return SRV.servers.filter(x => { const id = nrm(x[0]), nm = nrm(x[1]);
+    return (dg && id.endsWith(" " + dg[0])) || (n.length >= 3 && (nm.includes(n) || (id + " " + nm).includes(n))); }).slice(0, 8);
 }
+function renderSrvList(){
+  const q = $("srv-q").value.trim(), list = $("srv-list");
+  if (!SRV) { list.innerHTML = `<p class="note">Загружаю список штатов…</p>`; return; }
+  if (q.length < 2) { list.innerHTML = mySrv ? "" : `<p class="note">В игре открой список штатов и введи название своего — например «Desert Campos» или номер «5393».</p>`; return; }
+  const hits = findSrv(q);
+  list.innerHTML = hits.length ? hits.map(x => `<div class="srv" data-id="${esc(x[0])}" aria-selected="${mySrv && mySrv.id === x[0]}"><span><b>${esc(x[1])}</b> <span class="sub">${esc(x[0])}</span></span><small>рейд ${fmtAt(x[3])}</small></div>`).join("")
+    : `<p class="note">Не нашёл. Проверь название в игре. Совсем новый штат появляется в трекере с опозданием.</p>`;
+}
+$("srv-q").addEventListener("input", renderSrvList);
+$("srv-list").addEventListener("click", e => {
+  const d = e.target.closest("[data-id]"); if (!d) return;
+  const x = SRV.servers.find(y => y[0] === d.dataset.id); if (!x) return;
+  mySrv = {id: x[0], name: x[1], region: x[2], wipe: x[3]}; save("srv", mySrv);
+  $("srv-q").value = ""; haptic("success"); renderSrvList(); renderWipe();
+});
+async function loadSrv(){
+  try {
+    const d = await (await fetch(WORKER + "/servers")).json();
+    if (d && d.servers && d.servers.length) {
+      SRV = d; save("srvList", d);
+      if (mySrv) { const f = d.servers.find(x => x[0] === mySrv.id); if (f && f[3] !== mySrv.wipe) { mySrv.wipe = f[3]; save("srv", mySrv); } }
+    }
+  } catch (e) {}
+  renderSrvList(); renderWipe();
+}
+// примерное открытие нового штата EU — 17:00 UTC (20:00 МСК); реально бывает и раньше, и позже
+function nextEuOpen(){ const n = new Date(); let t = Date.UTC(n.getUTCFullYear(), n.getUTCMonth(), n.getUTCDate(), 17); if (t <= Date.now()) t += 864e5; return t; }
 function renderWipe(){
   const card = $("raid-card");
-  if (raid) {
-    let at = raid.open + 7 * 864e5;
-    while (at < Date.now()) at += 7 * 864e5;
-    const left = at - Date.now();
-    $("raid-left").textContent = fmtLeft(left);
-    $("raid-at").textContent = fmtAt(at) + (left < 864e5 ? " — трать деньги!" : "");
+  if (mySrv) {
+    const left = mySrv.wipe - Date.now();
+    $("raid-title").textContent = `Федеральный рейд · ${mySrv.name} (${mySrv.id})`;
+    $("raid-left").textContent = left > 0 ? fmtLeft(left) : "прошёл";
+    $("raid-at").textContent = left > 0 ? fmtAt(mySrv.wipe) + (left < 864e5 ? " — трать деньги!" : "") : "Штат обнулён. Выбери новый штат ниже.";
     card.classList.toggle("safe", left > 2 * 864e5);
-  } else { $("raid-left").textContent = "—"; $("raid-at").textContent = "Укажи, когда открылся твой штат"; card.classList.remove("safe"); }
-  const reg = $("raid-region").value;
-  let nx = openUtc(reg, 0); if (nx <= Date.now()) nx += 864e5;
-  $("next-region").textContent = reg === "eu" ? "EU" : "East US";
+    $("loadbar").style.width = Math.min(100, Math.max(2, 100 - Math.max(0, left) / (7 * 864e5) * 100)).toFixed(1) + "%";   // прошедшая часть недели до рейда
+  } else { $("raid-title").textContent = "Федеральный рейд в твоём штате"; $("raid-left").textContent = "—"; $("raid-at").textContent = "Найди свой штат ниже — время подставится само"; card.classList.remove("safe"); }
+  const nx = nextEuOpen();
   $("next-left").textContent = fmtLeft(nx - Date.now());
-  $("next-at").textContent = fmtAt(nx);
+  $("next-at").textContent = "около " + fmtAt(nx);
 }
-function onRaidChange(){
-  const v = $("raid-day").value, region = $("raid-region").value;
-  raid = v === "" ? null : {region, open: openUtc(region, Number(v))};
-  save("raid", raid); haptic(); renderWipe();
-}
-$("raid-region").addEventListener("change", onRaidChange);
-$("raid-day").addEventListener("change", onRaidChange);
 $("raid-bot").addEventListener("click", () => {
-  const url = `https://t.me/${BOT}?start=raid`;
+  const url = `https://t.me/${BOT}?start=` + (mySrv ? "srv_" + mySrv.id.replace(/ /g, "_") : "raid");
   if (inTg && tg.openTelegramLink) { tg.openTelegramLink(url); tg.close && setTimeout(() => tg.close(), 300); } else window.open(url, "_blank");
 });
 $("burn-lose").innerHTML = LOSE.map(x => `<li>${x}</li>`).join("");
 $("burn-keep").innerHTML = KEEP.map(x => `<li>${x}</li>`).join("");
+
+/* ---------- Карта ----------
+   Своя упрощённая схема по карте в игре. Координаты — в системе viewBox 0..1000 × 0..420.
+   c: цвет метки, k: тип для легенды. */
+const MK = {
+  fence: {c: "#c6ef3a", i: "$", n: "Скупщик (фургон $)"},
+  smug:  {c: "#4fd1c5", i: "📦", n: "Контрабандист"},
+  cop:   {c: "#4f8dff", i: "★", n: "Полицейский участок"},
+  bank:  {c: "#f5b860", i: "🏦", n: "Банк Looty Bay"},
+  gas:   {c: "#ff8a4f", i: "⛽", n: "Заправка (секретный подвал)"},
+  exit:  {c: "#ffffff", i: "↔", n: "Выезд из города"},
+};
+const PTS = [
+  {k:"fence", x:749, y:113, d:"Фургон скупщика в Даунтауне. Берёт краденое и лут — только у преступника в маске. Деньги со стойки забирай сразу."},
+  {k:"fence", x:710, y:287, d:"Фургон скупщика в Даунтауне у главной дороги."},
+  {k:"fence", x:305, y:387, d:"Фургон скупщика на юге Санни-Бич, у пляжа."},
+  {k:"smug",  x:781, y:158, d:"Контрабандист в Даунтауне: берёт груз — статуи, ящики, сейфы, реагенты."},
+  {k:"smug",  x:245, y:232, d:"Контрабандист в Санни-Бич."},
+  {k:"cop",   x:451, y:262, d:"Синий значок на карте игры в Палмсайде. Здесь начинают смену копа (NPC → Start Duty), внутри — оружейная (ID-карта за 20 улик). <span class='tag rumor'>место по значку</span>"},
+  {k:"bank",  x:715, y:22,  d:"Банк Looty Bay — в Даунтауне. Счёт открывает только гражданский. Хранилище: дрель; золотое хранилище: ID-карта. <span class='tag rumor'>место по значку</span>"},
+  {k:"gas",   x:660, y:350, d:"Заправка в Даунтауне. В сервисном центре под автоподъёмником — тайный подвал: синяя кнопка лифта на стойке подъёмника. Внизу две комнаты (ключи №5 и №6) и сейфы. <span class='tag rumor'>точка примерная</span>"},
+  {k:"exit",  x:28,  y:307, d:"Мост на запад из города. Статус преступника снимается, только когда покинешь Looty Bay; копы перекрывают мосты."},
+  {k:"exit",  x:972, y:307, d:"Мост на восток из города."},
+];
+let mapOn = -1;
+function renderMap(){
+  $("map-pts").innerHTML = PTS.map((p, i) => { const m = MK[p.k];
+    return `<g class="mk${i === mapOn ? " on" : ""}" data-i="${i}" transform="translate(${p.x} ${p.y})"><circle r="15" fill="${m.c}"/><text>${m.i}</text></g>`; }).join("");
+  $("map-legend").innerHTML = Object.values(MK).map(m => `<span><i style="background:${m.c}"></i>${m.n}</span>`).join("");
+}
+$("map").addEventListener("click", e => {
+  const g = e.target.closest(".mk"); if (!g) return;
+  mapOn = Number(g.dataset.i); const p = PTS[mapOn], m = MK[p.k];
+  $("map-info").innerHTML = `<h3>${m.i} ${m.n}</h3><p>${p.d}</p>`;
+  haptic(); renderMap();
+});
 
 /* ---------- Калькуляторы ---------- */
 const BONUS = {fence: [0, 0, 10, 20, 35, 50], smug: [0, 0, 5, 10, 15, 25]};
@@ -420,7 +560,7 @@ $("c-lvl").addEventListener("click", e => { const b = e.target.closest("[data-l]
 let cur = "guide";
 function show(v){
   cur = v;
-  ["guide", "wipe", "calc", "info"].forEach(x => $("v-" + x).hidden = x !== v);
+  ["guide", "map", "wipe", "calc", "info"].forEach(x => $("v-" + x).hidden = x !== v);
   document.querySelectorAll("nav.bar button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   if (v === "info") markNewsSeen();
   window.scrollTo(0, 0); haptic();
@@ -477,10 +617,10 @@ $("fb-send").addEventListener("click", async () => {
 });
 
 /* ---------- Старт ---------- */
-fillDays(); renderGuide(); renderWipe(); calc(); renderNews();
+renderGuide(); renderWipe(); renderSrvList(); loadSrv(); renderMap(); calc(); renderNews();
 setInterval(renderWipe, 30e3);
 const startTab = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("tab");
-if (["wipe", "calc", "info"].includes(startTab)) show(startTab);
+if (["map", "wipe", "calc", "info"].includes(startTab)) show(startTab);
 if (inTg) fetch(WORKER + "/hello", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({initData: tg.initData})}).catch(() => {});
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>

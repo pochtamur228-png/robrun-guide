@@ -3,9 +3,9 @@
  * Шрифты и telegram-web-app.js: из кэша сразу, в фоне обновляем.
  * Запросы к боту (POST) — только сеть. При изменении файлов из CORE поднимай V.
  */
-const V = "rr-v1";
+const V = "rr-v3";
 const APP = V + "-app", LIB = V + "-lib";
-const CORE = ["./", "index.html", "assets/icon-32.png", "assets/icon-180.png"];
+const CORE = ["./", "index.html", "assets/icon-32.png", "assets/icon-180.png", "assets/hero.jpg", "assets/bg.jpg"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(APP).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
