@@ -128,6 +128,9 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 .kn a{display:block;text-decoration:none;color:var(--fg);padding:7px 0;border-top:1px solid var(--line)}
 .kn a:first-child{border-top:0}
 .kn small{color:var(--muted);display:block}
+.upin{cursor:pointer}.upin path{stroke:#081019;stroke-width:2}
+.placing #map{outline:3px dashed var(--lime);outline-offset:-3px;cursor:crosshair}
+.vote{display:flex;gap:8px}.vote button{flex:1}
 @media (max-width:380px){.roles{grid-template-columns:1fr}.burn{grid-template-columns:1fr}}
 </style>
 </head>
@@ -212,7 +215,20 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
         <text class="district" x="487" y="372">ПАЛМСАЙД</text>
         <text class="district" x="735" y="215">ДАУНТАУН</text>
         <g id="map-pts"></g>
+        <g id="map-user"></g>
       </svg>
+    </div>
+    <div class="row" id="pin-bar"><button class="btn ghost" id="pin-add" style="flex:1">📍 Поставить метку</button><span class="note" id="pin-n"></span></div>
+    <div class="card" id="pin-form" hidden>
+      <h3>📍 Новая метка</h3>
+      <p class="sub" id="pin-hint">Нажми на схеме место, где метка.</p>
+      <label><span class="sub">Что там</span><select id="pin-k">
+        <option value="fence">Скупщик сейчас здесь</option><option value="smug">Контрабандист сейчас здесь</option>
+        <option value="cops">Засада копов / пост</option><option value="loot">Хороший лут</option>
+        <option value="safe">Сейф / тайник</option><option value="other">Другое</option></select></label>
+      <input type="text" id="pin-t" maxlength="80" placeholder="Коротко: что именно (необязательно)">
+      <div class="row"><button class="btn" id="pin-send" style="flex:1" disabled>Отправить</button><button class="btn ghost" id="pin-cancel">Отмена</button></div>
+      <div class="note" id="pin-msg"></div>
     </div>
     <div class="mapbox" id="mb-desert" hidden>
       <svg id="dmap" viewBox="0 0 1000 562" role="img" aria-label="Схема глобальной карты">
@@ -250,6 +266,15 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <div class="chips" id="c-lvl"></div>
       <div class="res" id="c-res"></div>
       <p class="note">Бонусы — из справочника самой игры («Известность»). Базовую цену смотри у скупщика без бонуса.</p>
+    </div>
+    <div class="card">
+      <h3>💬 Цены от игроков</h3>
+      <p class="sub">Сколько реально дал скупщик или контрабандист — медиана за 7 дней (в скобках — сколько отчётов).</p>
+      <div id="pr-list"><p class="note">Загружаю…</p></div>
+      <div class="grid2"><label><span class="sub">Что продал</span><select id="pr-item"></select></label>
+        <label><span class="sub">За сколько, $</span><input type="number" id="pr-p" inputmode="numeric" min="1"></label></div>
+      <button class="btn ghost" id="pr-send">Отправить свою цену</button>
+      <div class="note" id="pr-msg"></div>
     </div>
     <div class="card">
       <h3>🔓 Сколько дешифраторов на базу</h3>
@@ -660,6 +685,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:11, t:"17.11.2026", items:["Карта: метки игроков — где сейчас скупщик, засада копов, хороший лут. Ставятся из Telegram, живут 3 дня, неверные скрываются голосованием.", "«Счёт»: цены от игроков — сколько реально дают скупщики (медиана за неделю)."]},
   {v:10, t:"17.11.2026", items:["Новые разделы: бартер, коллекции и лотерея, боевой пропуск, словарь и частые вопросы."]},
   {v:9, t:"17.11.2026", items:["«Счёт»: калькулятор дешифраторов для рейда на базу и планировщик прокачки — вся цепочка исследований до цели, сумма, уровень района и нужный срок."]},
   {v:8, t:"17.11.2026", items:["«Инфо»: лента официальных постов Kefir; бот сам присылает новые посты (выключается в /remind).", "Новые разделы: «Маршруты заработка» (первый час, первый день, соло/дуо/тройка, неделя до вайпа) и «Чек-листы» с галочками.", "Видео-разборы с канала прямо в разделах — появляются по мере выхода роликов."]},
@@ -886,7 +912,7 @@ $("dmap").addEventListener("click", e => {
   haptic(); renderDesert();
 });
 function legend(){
-  $("map-legend").innerHTML = mapMode === "city" ? Object.values(MK).map(m => `<span><i style="background:${m.c}"></i>${m.n}</span>`).join("")
+  $("map-legend").innerHTML = mapMode === "city" ? Object.values(MK).map(m => `<span><i style="background:${m.c}"></i>${m.n}</span>`).join("") + `<span><i style="background:#fff;border-radius:2px;transform:rotate(45deg)"></i>метки игроков</span>`
     : [1, 2, 3].map(l => `<span><i style="background:${LVLC[l]}"></i>Район ${l}-го уровня</span>`).join("") + `<span><i style="background:#c6ef3a"></i>Looty Bay</span>`;
 }
 $("map-tabs").addEventListener("click", e => {
@@ -897,6 +923,7 @@ $("map-tabs").addEventListener("click", e => {
   $("map-info").innerHTML = mapMode === "city" ? `<h3>🏙 Looty Bay</h3><p class="sub">Город, где грабят. Нажми на значок — расскажу, что там. Схема упрощённая; в игре на карте есть поиск предметов по названию и слои.</p>`
     : `<h3>🏜 Глобальная карта</h3><p class="sub">Пустыня вокруг Looty Bay — общая карта поселений и баз всего сервера. 10 районов: в центре Highlands (3-й уровень), рядом Rivertown, Fallrock и El Peso (2-й), по краям шесть районов 1-го уровня. Looty Bay — на восточном побережье. Нажми на район.</p>`;
   legend(); haptic();
+  $("pin-bar").hidden = mapMode !== "city"; if (mapMode !== "city") { $("pin-form").hidden = true; placing = false; $("mb-city").classList.remove("placing"); }
 });
 
 /* ---------- Вещи: каталог предметов ----------
@@ -1020,6 +1047,78 @@ function plan(){
 $("r-c").addEventListener("change", () => { fillTargets(); haptic(); });
 $("r-t").addEventListener("change", () => { plan(); haptic(); });
 
+/* ---------- Метки игроков (общие, живут 3 дня; ставить и голосовать — из Telegram) ---------- */
+const UK = {fence: ["#c6ef3a", "Скупщик здесь"], smug: ["#4fd1c5", "Контрабандист здесь"], cops: ["#4f8dff", "Засада копов"],
+  loot: ["#f5b860", "Хороший лут"], safe: ["#d6a2ff", "Сейф / тайник"], other: ["#ffffff", "Другое"]};
+let UPINS = [], placing = false, newPin = null;
+async function loadPins(){
+  try { UPINS = (await (await fetch(WORKER + "/pins")).json()).pins || []; } catch (e) { UPINS = []; }
+  drawPins();
+}
+function drawPins(){
+  const ago = t => { const h = Math.round((Date.now() - t) / 36e5); return h < 1 ? "только что" : h < 24 ? h + " ч назад" : Math.round(h / 24) + " д назад"; };
+  $("map-user").innerHTML = UPINS.map((p, i) => `<g class="upin" data-u="${i}" transform="translate(${p.x} ${p.y})"><path d="M0 -14 L10 0 L0 14 L-10 0Z" fill="${(UK[p.k] || UK.other)[0]}"/></g>`).join("") +
+    (newPin ? `<g transform="translate(${newPin.x} ${newPin.y})"><circle r="12" fill="none" stroke="#fff" stroke-width="3"/><circle r="3" fill="#fff"/></g>` : "");
+  $("pin-n").textContent = UPINS.length ? `меток игроков: ${UPINS.length}` : "";
+  UPINS.forEach(p => p.ago = ago(p.at));
+}
+function svgPoint(e){
+  const svg = $("map"), pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  const r = pt.matrixTransform(svg.getScreenCTM().inverse()); return {x: Math.round(r.x), y: Math.round(r.y)};
+}
+$("pin-add").addEventListener("click", () => {
+  if (!inTg) { alert("Метки ставятся из Telegram: открой справочник через бота @" + BOT); return; }
+  placing = true; newPin = null; $("pin-form").hidden = false; $("pin-send").disabled = true; $("pin-msg").textContent = "";
+  $("pin-hint").textContent = "Нажми на схеме место, где метка."; $("mb-city").classList.add("placing"); haptic();
+});
+$("pin-cancel").addEventListener("click", () => { placing = false; newPin = null; $("pin-form").hidden = true; $("mb-city").classList.remove("placing"); drawPins(); });
+$("map").addEventListener("click", e => {
+  if (placing) { newPin = svgPoint(e); $("pin-send").disabled = false; $("pin-hint").textContent = "Место выбрано. Можно нажать ещё раз, чтобы сдвинуть."; drawPins(); haptic(); e.stopImmediatePropagation(); return; }
+  const g = e.target.closest(".upin"); if (!g) return;
+  const p = UPINS[+g.dataset.u], k = UK[p.k] || UK.other;
+  $("map-info").innerHTML = `<h3>◆ ${k[1]}</h3><p>${p.t ? esc(p.t) : "<span class='sub'>без описания</span>"}</p><p class="note">Метка игрока · ${p.ago} · 👍 ${p.up} · 👎 ${p.down}. Метки живут 3 дня, с большим числом 👎 скрываются.</p>
+    <div class="vote"><button class="btn ghost" data-vote="1" data-id="${p.id}">👍 Верно</button><button class="btn ghost" data-vote="-1" data-id="${p.id}">👎 Неверно</button></div>`;
+  haptic(); e.stopImmediatePropagation();
+}, true);
+$("map-info").addEventListener("click", async e => {
+  const b = e.target.closest("[data-vote]"); if (!b) return;
+  if (!inTg) { alert("Голосовать можно из Telegram"); return; }
+  try {
+    const d = await (await fetch(WORKER + "/vote", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({initData: tg.initData, id: b.dataset.id, v: +b.dataset.vote})})).json();
+    b.closest(".vote").outerHTML = d.ok ? `<p class="ok-msg">Спасибо! 👍 ${d.up} · 👎 ${d.down}</p>` : `<p class="err-msg">${esc(d.error || "Не получилось")}</p>`;
+    haptic(d.ok ? "success" : "error"); loadPins();
+  } catch (err) {}
+});
+$("pin-send").addEventListener("click", async () => {
+  if (!newPin) return;
+  $("pin-send").disabled = true; $("pin-msg").className = "note"; $("pin-msg").textContent = "Отправляю…";
+  try {
+    const d = await (await fetch(WORKER + "/pins", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({initData: tg.initData, x: newPin.x, y: newPin.y, k: $("pin-k").value, t: $("pin-t").value})})).json();
+    if (d.ok) { $("pin-msg").className = "note ok-msg"; $("pin-msg").textContent = "Метка поставлена — её видят все."; placing = false; newPin = null; $("pin-t").value = ""; $("mb-city").classList.remove("placing"); setTimeout(() => $("pin-form").hidden = true, 1200); haptic("success"); loadPins(); }
+    else { $("pin-msg").className = "note err-msg"; $("pin-msg").textContent = d.error || "Не получилось"; $("pin-send").disabled = false; haptic("error"); }
+  } catch (err) { $("pin-msg").className = "note err-msg"; $("pin-msg").textContent = "Нет связи"; $("pin-send").disabled = false; }
+});
+
+/* ---------- Цены от игроков ---------- */
+async function loadPrices(){
+  try {
+    const d = await (await fetch(WORKER + "/prices")).json();
+    $("pr-item").innerHTML = (d.items || []).map(x => `<option>${esc(x)}</option>`).join("");
+    $("pr-list").innerHTML = (d.prices || []).length ? `<div class="res">` + d.prices.map(r => `<span>${esc(r.item)} <span class="sub">(${r.n})</span></span><b>${money(r.med)}</b>`).join("") + `</div>`
+      : `<p class="note">Пока никто не отправил цену — будь первым.</p>`;
+  } catch (e) { $("pr-list").innerHTML = `<p class="note">Нет связи.</p>`; }
+}
+$("pr-send").addEventListener("click", async () => {
+  if (!inTg) { alert("Цены отправляются из Telegram: открой справочник через бота @" + BOT); return; }
+  const v = +$("pr-p").value; if (!(v > 0)) { $("pr-msg").className = "note err-msg"; $("pr-msg").textContent = "Введи цену"; return; }
+  try {
+    const d = await (await fetch(WORKER + "/prices", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({initData: tg.initData, item: $("pr-item").value, p: v})})).json();
+    $("pr-msg").className = "note " + (d.ok ? "ok-msg" : "err-msg"); $("pr-msg").textContent = d.ok ? "Спасибо! Цена учтена." : (d.error || "Не получилось");
+    if (d.ok) { $("pr-p").value = ""; haptic("success"); loadPrices(); }
+  } catch (e) { $("pr-msg").className = "note err-msg"; $("pr-msg").textContent = "Нет связи"; }
+});
+
 /* ---------- Калькуляторы ---------- */
 const BONUS = {fence: [0, 0, 10, 20, 35, 50], smug: [0, 0, 5, 10, 15, 25]};
 let lvl = load("lvl", 4);
@@ -1102,7 +1201,7 @@ $("fb-send").addEventListener("click", async () => {
 });
 
 /* ---------- Старт ---------- */
-renderGuide(); renderWipe(); renderSrvList(); loadKefir(); $("wipe-vid").innerHTML = videosFor("wipe"); loadSrv(); renderMap(); renderDesert(); renderItems(); calc(); decoders(); fillPlanner(); renderNews();
+renderGuide(); renderWipe(); renderSrvList(); loadKefir(); $("wipe-vid").innerHTML = videosFor("wipe"); loadSrv(); renderMap(); renderDesert(); renderItems(); calc(); decoders(); fillPlanner(); loadPins(); loadPrices(); renderNews();
 setInterval(renderWipe, 30e3);
 const startTab = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("tab");
 if (["map", "items", "wipe", "calc", "info"].includes(startTab)) show(startTab);
