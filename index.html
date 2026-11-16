@@ -252,6 +252,30 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <p class="note">Бонусы — из справочника самой игры («Известность»). Базовую цену смотри у скупщика без бонуса.</p>
     </div>
     <div class="card">
+      <h3>🔓 Сколько дешифраторов на базу</h3>
+      <p class="sub">Защита постройки + все предохранители ÷ сила дешифратора, с округлением вверх.</p>
+      <div class="grid2">
+        <label><span class="sub">Постройка</span><select id="d-b"><option value="5">Ферма или склад (5)</option><option value="3">Лаборатория (3)</option><option value="15">Маленький дом (15)</option></select></label>
+        <label><span class="sub">Дешифратор</span><select id="d-p"><option value="3">Эпический (−3)</option><option value="1">Обычный (−1)</option></select></label>
+      </div>
+      <div class="grid2" style="grid-template-columns:1fr 1fr 1fr">
+        <label><span class="sub">Предохр. +1</span><input type="number" id="d-u" inputmode="numeric" value="0" min="0"></label>
+        <label><span class="sub">Предохр. +3</span><input type="number" id="d-e" inputmode="numeric" value="0" min="0"></label>
+        <label><span class="sub">Предохр. +5</span><input type="number" id="d-l" inputmode="numeric" value="0" min="0"></label>
+      </div>
+      <div class="res" id="d-res"></div>
+      <p class="note">Цифры защиты и предохранителей — по данным игроков <span class="tag rumor">не подтверждено</span>. Чужой сейф дешифратор не открывает — нужен мастер-ключ.</p>
+    </div>
+    <div class="card">
+      <h3>🌳 Планировщик прокачки</h3>
+      <p class="sub">Выбери цель — посчитаю всю цепочку исследований до неё.</p>
+      <label><span class="sub">Цепочка</span><select id="r-c"></select></label>
+      <label><span class="sub">Цель</span><select id="r-t"></select></label>
+      <div class="res" id="r-res"></div>
+      <div class="note" id="r-path"></div>
+      <p class="note">Исследование — один раз и грязными деньгами; сами предметы покупаются отдельно. Цены могут отличаться на сервере <span class="tag rumor">не подтверждено</span>.</p>
+    </div>
+    <div class="card">
       <h3>⛓ Срок после рейда <span class="tag rumor">не подтверждено</span></h3>
       <p class="sub">По подсчётам игроков: 1 год за старт + 1 год за каждые 500 000 $ имущества, максимум 40 лет за штат.</p>
       <label><span class="sub">Всё имущество перед рейдом, $</span><input type="number" id="t-sum" inputmode="numeric" value="1500000" min="0"></label>
@@ -590,6 +614,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:9, t:"17.11.2026", items:["«Счёт»: калькулятор дешифраторов для рейда на базу и планировщик прокачки — вся цепочка исследований до цели, сумма, уровень района и нужный срок."]},
   {v:8, t:"17.11.2026", items:["«Инфо»: лента официальных постов Kefir; бот сам присылает новые посты (выключается в /remind).", "Новые разделы: «Маршруты заработка» (первый час, первый день, соло/дуо/тройка, неделя до вайпа) и «Чек-листы» с галочками.", "Видео-разборы с канала прямо в разделах — появляются по мере выхода роликов."]},
   {v:7, t:"16.11.2026", items:["Новая вкладка «Вещи»: оружие (урон, темп, магазин, цены открытия), броня, сумки, гранаты, лечение, инструменты.", "Новый раздел «Ветка прокачки»: как устроено дерево поставок и какой путь выбрать под свою роль."]},
   {v:6, t:"16.11.2026", items:["Новый раздел «Что изменилось за неделю»: официальный FAQ Kefir от 13.11, изменения 05.11 и 11.11.", "Обновлены советы про груз и прочность снаряжения."]},
@@ -902,6 +927,52 @@ function renderItems(){
 }
 $("it-chips").addEventListener("click", e => { const b = e.target.closest("[data-it]"); if (!b) return; itCur = b.dataset.it; save("itCur", itCur); haptic(); renderItems(); });
 
+/* ---------- Дешифраторы и планировщик прокачки ---------- */
+function decoders(){
+  const b = +$("d-b").value, pw = +$("d-p").value;
+  const u = Math.max(0, +$("d-u").value || 0), e = Math.max(0, +$("d-e").value || 0), l = Math.max(0, +$("d-l").value || 0);
+  const def = b + u + 3 * e + 5 * l, need = Math.ceil(def / pw);
+  $("d-res").innerHTML = `<span>Защита итого</span><b>${def}</b><span>Нужно дешифраторов</span><b class="hi">${need}</b>` +
+    `<span>Предохранители стоили хозяину</span><b>${money(u * 2e4 + e * 1e5 + l * 2.5e5)}</b>`;
+}
+["d-b", "d-p", "d-u", "d-e", "d-l"].forEach(id => $(id).addEventListener("input", decoders));
+// шаги: [название, цена исследования $, уровень района, лет срока]
+const K = 1e3, M = 1e6;
+const CHAINS = [
+  {n: "Автоматы: KL-545 → RC 5.56 → SR Reaper", s: [["KL-545 Mk1", 25*K, 1], ["KL-545 Mk2", 50*K, 1], ["KL-545 Mk3", 100*K, 2], ["RC 5.56 Mk1", 200*K, 2], ["RC 5.56 Mk2", 400*K, 2], ["RC 5.56 Mk3", 800*K, 3], ["SR Reaper Mk1", 400*K, 3], ["SR Reaper Mk2", 800*K, 3], ["SR Reaper Mk3", 1.6*M, 3]]},
+  {n: "ПП: MC-10 → JP-7 → AP Scalar", s: [["MC-10 Mk1", 15*K, 1], ["MC-10 Mk2", 30*K, 1], ["MC-10 Mk3", 60*K, 2], ["JP-7 Mk1", 160*K, 2], ["JP-7 Mk2", 320*K, 2], ["JP-7 Mk3", 640*K, 3], ["AP Scalar Mk1", 400*K, 3], ["AP Scalar Mk2", 800*K, 3], ["AP Scalar Mk3", 1.6*M, 3]]},
+  {n: "Дробовики: Harris 500 → ORDR-12 → TAG-12K", s: [["Harris 500 Mk1", 15*K, 1], ["Harris 500 Mk2", 30*K, 1], ["Harris 500 Mk3", 60*K, 2], ["ORDR-12 Mk1", 160*K, 2], ["ORDR-12 Mk2", 320*K, 2], ["ORDR-12 Mk3", 640*K, 3], ["TAG-12K Mk1", 400*K, 3], ["TAG-12K Mk2", 800*K, 3], ["TAG-12K Mk3", 1.6*M, 3]]},
+  {n: "Пистолеты: DP-9 → LBR-44 → Vulture 50", s: [["DP-9 Mk1", 0, 1], ["DP-9 Mk2", 25*K, 1], ["LBR-44 Mk1", 100*K, 2], ["LBR-44 Mk2", 200*K, 2], ["Vulture 50 Mk1", 300*K, 3], ["Vulture 50 Mk2", 600*K, 3]]},
+  {n: "CB45 (нужен срок)", s: [["MC-10 Mk1", 15*K, 1], ["CB45 Mk1", 15*K, 1, 15], ["CB45 Mk2", 30*K, 1, 25], ["CB45 Mk3", 60*K, 2, 35]]},
+  {n: "STAR-H (нужен срок)", s: [["KL-545 Mk1", 25*K, 1], ["STAR-H Mk1", 100*K, 2, 180], ["STAR-H Mk2", 200*K, 2, 190], ["STAR-H Mk3", 400*K, 3, 200]]},
+  {n: "DRM-14 (нужен большой срок)", s: [["KL-545 Mk1", 25*K, 1], ["KL-545 Mk2", 50*K, 1], ["KL-545 Mk3", 100*K, 2], ["RC 5.56 Mk1", 200*K, 2], ["DRM-14 Mk1", 200*K, 3, 950], ["DRM-14 Mk2", 400*K, 3, 975], ["DRM-14 Mk3", 800*K, 3, 1000]]},
+  {n: "Броня: лёгкая → тяжёлая", s: [["Лёгкий бронежилет", 5*K, 1], ["Средний бронежилет", 15*K, 1], ["Штурмовой бронежилет", 250*K, 2], ["Тяжёлый бронежилет", 500*K, 3]]},
+  {n: "Сумки", s: [["Спортивная сумка (необычная)", 5*K, 1], ["Спортивная сумка (эпическая)", 35*K, 2], ["Спортивная сумка (легендарная)", 150*K, 3]]},
+  {n: "Машины: Tensa → Buletti", s: [["Fukurou Tensa", 50*K, 1], ["Royal E", 200*K, 2], ["Longhorn Wild", 500*K, 3], ["Buletti Soltempra", 2*M, 3]]},
+  {n: "Машины: Van → Royal J", s: [["Longhorn Van", 50*K, 1], ["Longhorn Titan", 200*K, 2], ["Royal J", 500*K, 3]]},
+  {n: "Защита базы: предохранители", s: [["Предохранитель +1", 10*K, 1], ["Предохранитель +3", 150*K, 2], ["Предохранитель +5", 500*K, 3]]},
+  {n: "Документы: участок", s: [["Право на участок, ур. 1", 50*K, 1], ["Право на участок, ур. 2", 200*K, 1], ["Право на участок, ур. 3", 1*M, 2]]},
+  {n: "Документы: поселение", s: [["Право на поселение, ур. 1", 100*K, 1], ["Право на поселение, ур. 2", 500*K, 1], ["Право на поселение, ур. 3", 2*M, 2]]},
+];
+function fillPlanner(){
+  $("r-c").innerHTML = CHAINS.map((c, i) => `<option value="${i}">${c.n}</option>`).join("");
+  fillTargets();
+}
+function fillTargets(){
+  const c = CHAINS[+$("r-c").value];
+  $("r-t").innerHTML = c.s.map((x, i) => `<option value="${i}"${i === c.s.length - 1 ? " selected" : ""}>${x[0]}</option>`).join("");
+  plan();
+}
+function plan(){
+  const c = CHAINS[+$("r-c").value], t = +$("r-t").value, path = c.s.slice(0, t + 1);
+  const sum = path.reduce((a, x) => a + x[1], 0), lvl = Math.max(...path.map(x => x[2])), yrs = Math.max(0, ...path.map(x => x[3] || 0));
+  $("r-res").innerHTML = `<span>Исследований в цепочке</span><b>${path.length}</b><span>Всего на исследования</span><b class="hi">${money(sum)}</b>` +
+    `<span>Нужен уровень района</span><b>${lvl}</b>` + (yrs ? `<span>Нужен тюремный срок</span><b>${yrs} лет</b>` : "");
+  $("r-path").innerHTML = path.map(x => `${x[0]} — ${x[1] ? money(x[1]) : "бесплатно"}${x[3] ? `, срок ${x[3]} лет` : ""}`).join("<br>");
+}
+$("r-c").addEventListener("change", () => { fillTargets(); haptic(); });
+$("r-t").addEventListener("change", () => { plan(); haptic(); });
+
 /* ---------- Калькуляторы ---------- */
 const BONUS = {fence: [0, 0, 10, 20, 35, 50], smug: [0, 0, 5, 10, 15, 25]};
 let lvl = load("lvl", 4);
@@ -984,7 +1055,7 @@ $("fb-send").addEventListener("click", async () => {
 });
 
 /* ---------- Старт ---------- */
-renderGuide(); renderWipe(); renderSrvList(); loadKefir(); $("wipe-vid").innerHTML = videosFor("wipe"); loadSrv(); renderMap(); renderDesert(); renderItems(); calc(); renderNews();
+renderGuide(); renderWipe(); renderSrvList(); loadKefir(); $("wipe-vid").innerHTML = videosFor("wipe"); loadSrv(); renderMap(); renderDesert(); renderItems(); calc(); decoders(); fillPlanner(); renderNews();
 setInterval(renderWipe, 30e3);
 const startTab = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("tab");
 if (["map", "items", "wipe", "calc", "info"].includes(startTab)) show(startTab);
