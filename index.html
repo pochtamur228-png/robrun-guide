@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>ROB RUN Справочник</title>
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icon-32.png">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Russo+One&family=Rubik:wght@400;500;700&display=swap">
+<style>
+/* ROB RUN Справочник — Telegram Mini App.
+   Тема «Ночное ограбление»: всегда тёмная, асфальт, зелёные купюры, жёлтый сигнал тревоги,
+   красно-синие мигалки полиции. От темы Telegram не зависит. */
+:root{
+  --bg:#0a0c0f; --bg2:#13171c; --bg3:#1b2128; --line:#28303a;
+  --fg:#ece9e1; --muted:#8b95a1;
+  --cash:#3fd17a; --cash-lo:#1d6b3e; --alarm:#f2c230; --cop:#3d7bff; --siren:#ff4a4a;
+  --btn:var(--cash); --btn-fg:#04140a; --link:#6fe3a0;
+  --font:"Rubik",-apple-system,"Segoe UI",Roboto,system-ui,sans-serif;
+  --display:"Russo One","Rubik","Arial Black",sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 var(--font)}
+body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--link)}
+.wrap{padding:12px max(16px,env(safe-area-inset-left,0px)) 12px max(16px,env(safe-area-inset-right,0px));max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+header.top{display:flex;align-items:center;gap:10px}
+header.top .logo{font-family:var(--display);font-size:22px;letter-spacing:.02em;line-height:1}
+header.top .logo b{color:var(--cash);font-weight:400}
+header.top .sp{flex:1}
+.icon-btn{border:0;background:var(--bg2);border-radius:12px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;font-size:18px}
+.tape{height:6px;border-radius:3px;background:repeating-linear-gradient(-45deg,var(--alarm) 0 10px,#111 10px 20px);opacity:.85}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:8px 0 0;font-weight:600}
+.sub{color:var(--muted);font-size:13px;margin:0}
+.card{background:var(--bg2);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.card h3{margin:0;font-size:16px;display:flex;gap:8px;align-items:center}
+.card ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.card p{margin:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:0;background:var(--bg2);padding:7px 12px;border-radius:999px;font-size:13px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--btn);color:var(--btn-fg);font-weight:600}
+.tag{font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:6px;vertical-align:1px;white-space:nowrap}
+.tag.ok{color:var(--cash);border:1px solid color-mix(in srgb,var(--cash) 45%,transparent)}
+.tag.rumor{color:var(--alarm);border:1px solid color-mix(in srgb,var(--alarm) 45%,transparent)}
+.tag.game{color:#fff;background:var(--cash-lo)}
+kbd{background:var(--bg3);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;font:600 12px var(--font)}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+td,th{padding:6px 4px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:12px;border-top:0}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.role{background:var(--bg2);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--c)}
+.role b{font-family:var(--display);font-weight:400;font-size:14px}
+.role span{font-size:12.5px;color:var(--muted)}
+.big{font-family:var(--display);font-size:34px;line-height:1.05;letter-spacing:.01em}
+.timer{background:linear-gradient(135deg,#2a0f12,#13171c 60%);border:1px solid #4a1d22}
+.timer .big{color:var(--siren)}
+.timer.safe{background:linear-gradient(135deg,#0e2418,#13171c 60%);border-color:#1f4a31}
+.timer.safe .big{color:var(--cash)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+select,input[type=number],input[type=text],textarea{background:var(--bg3);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:16px;outline:none;width:100%}
+textarea{min-height:110px;resize:vertical;font:inherit}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn{border:0;border-radius:12px;padding:12px 14px;background:var(--btn);color:var(--btn-fg);font-weight:700;cursor:pointer}
+.btn.ghost{background:var(--bg3);color:var(--fg);font-weight:500}
+.res{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:14px}
+.res b{text-align:right;font-variant-numeric:tabular-nums}
+.res .hi{color:var(--cash)}
+.list{display:flex;flex-direction:column;gap:8px}
+.burn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.burn .card{border-top:3px solid var(--c)}
+nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#090b0e;border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav.bar .in{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;width:100%;max-width:640px}
+nav.bar button{border:0;background:none;padding:6px 2px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted);cursor:pointer;position:relative}
+nav.bar button i{font-style:normal;font-size:20px;line-height:1}
+nav.bar button[aria-current="page"]{color:var(--fg);background:var(--bg2)}
+nav.bar .dot{position:absolute;top:4px;right:calc(50% - 18px);width:8px;height:8px;border-radius:50%;background:var(--siren)}
+section[hidden]{display:none!important}
+.overlay{position:fixed;inset:0;z-index:30;background:var(--bg);overflow:auto}
+.overlay .wrap{padding-top:14px}
+.hit{background:var(--bg2);border-radius:12px;padding:10px 12px;cursor:pointer}
+.hit small{color:var(--muted);display:block}
+mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;border-radius:3px}
+.note{color:var(--muted);font-size:12.5px}
+.ok-msg{color:var(--cash)} .err-msg{color:var(--siren)}
+.yt{display:flex;gap:12px;align-items:center;background:linear-gradient(135deg,#2b0a0a,#13171c);border:1px solid #4d1515;text-decoration:none;color:var(--fg)}
+.yt .p{width:44px;height:32px;border-radius:9px;background:#ff2b2b;display:grid;place-items:center;flex:none}
+.yt .p::after{content:"";border-left:12px solid #fff;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+@media (max-width:380px){.roles{grid-template-columns:1fr}.burn{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div class="logo">ROB <b>RUN</b><div class="sub" style="font-family:var(--font);font-size:12px;margin-top:3px">Справочник игрока</div></div>
+    <div class="sp"></div>
+    <button class="icon-btn" id="btn-search" aria-label="Поиск">🔍</button>
+  </header>
+  <div class="tape"></div>
+
+  <!-- ===== ГАЙД ===== -->
+  <section id="v-guide">
+    <div class="chips" id="g-chips"></div>
+    <div class="list" id="g-list" style="margin-top:10px"></div>
+  </section>
+
+  <!-- ===== ВАЙП ===== -->
+  <section id="v-wipe" hidden>
+    <div class="card timer" id="raid-card">
+      <div class="sub">Федеральный рейд в твоём штате</div>
+      <div class="big" id="raid-left">—</div>
+      <div class="sub" id="raid-at">Укажи, когда открылся твой штат</div>
+    </div>
+    <div class="card">
+      <h3>Мой штат</h3>
+      <div class="grid2">
+        <label><span class="sub">Регион</span>
+          <select id="raid-region"><option value="eu">EU (Европа)</option><option value="us">East US</option></select></label>
+        <label><span class="sub">Штат открылся</span>
+          <select id="raid-day"></select></label>
+      </div>
+      <p class="note">Рейд — через 7 дней после открытия штата. Новые штаты открываются каждый день: EU в 20:00 МСК, East US в 20:00 по Нью-Йорку. Kefir предупреждает, что срок может меняться.</p>
+      <button class="btn ghost" id="raid-bot">🔔 Напоминать в Telegram за сутки и за 2 часа</button>
+    </div>
+    <div class="card timer safe">
+      <div class="sub">Следующий новый штат (<span id="next-region">EU</span>)</div>
+      <div class="big" id="next-left">—</div>
+      <div class="sub" id="next-at"></div>
+    </div>
+    <h2>Что будет на рейде</h2>
+    <div class="burn">
+      <div class="card" style="--c:var(--siren)"><h3>🔥 Сгорает</h3><ul id="burn-lose"></ul></div>
+      <div class="card" style="--c:var(--cash)"><h3>✅ Остаётся</h3><ul id="burn-keep"></ul></div>
+    </div>
+    <div class="card"><h3>💡 Перед рейдом</h3><ul>
+      <li>Деньги копить бессмысленно: они сгорят <b>даже в банке</b>. Трать и вкладывай.</li>
+      <li>Всё сгоревшее превращается в <b>тюремный срок и авторитет</b>: чем богаче был, тем больше срок.</li>
+      <li>После рейда выходи в <b>тот же штат</b>: в другом начнёшь с нуля.</li>
+      <li>Баннер «Федеральный рейд через 40 минут» в Looty Bay — это облава в городе, <b>не вайп</b>.</li>
+    </ul></div>
+  </section>
+
+  <!-- ===== КАЛЬКУЛЯТОР ===== -->
+  <section id="v-calc" hidden>
+    <div class="card">
+      <h3>💰 Сколько даст скупщик</h3>
+      <p class="sub">Известность (Notoriety) поднимает цену продажи краденого. Соло-игрок стартует с 4-го уровня.</p>
+      <div class="grid2">
+        <label><span class="sub">Базовая цена лута, $</span><input type="number" id="c-base" inputmode="numeric" value="10000" min="0"></label>
+        <label><span class="sub">Кому продаёшь</span><select id="c-who"><option value="fence">Скупщик</option><option value="smug">Контрабандист</option></select></label>
+      </div>
+      <div class="chips" id="c-lvl"></div>
+      <div class="res" id="c-res"></div>
+      <p class="note">Бонусы — из справочника самой игры («Известность»). Базовую цену смотри у скупщика без бонуса.</p>
+    </div>
+    <div class="card">
+      <h3>⛓ Срок после рейда <span class="tag rumor">не подтверждено</span></h3>
+      <p class="sub">По подсчётам игроков: 1 год за старт + 1 год за каждые 500 000 $ имущества, максимум 40 лет за штат.</p>
+      <label><span class="sub">Всё имущество перед рейдом, $</span><input type="number" id="t-sum" inputmode="numeric" value="1500000" min="0"></label>
+      <div class="res" id="t-res"></div>
+    </div>
+    <div class="card">
+      <h3>🧼 Отмыть на себе или на столе</h3>
+      <label><span class="sub">Грязная наличка, $</span><input type="number" id="w-sum" inputmode="numeric" value="100000" min="0"></label>
+      <div class="res" id="w-res"></div>
+      <p class="note">Отмывка «на себе» (курс 0,5) — по словам игроков <span class="tag rumor">не подтверждено</span>. Стол отмывания на базе работает, даже когда ты не в игре; владелец поселения берёт налог.</p>
+    </div>
+  </section>
+
+  <!-- ===== ИНФО ===== -->
+  <section id="v-info" hidden>
+    <a class="card yt" id="yt" href="https://www.youtube.com/@Ronanmalkov" target="_blank" rel="noopener">
+      <span class="p"></span><span><b>Гайды по ROB RUN на YouTube</b><br><span class="sub">Короткие разборы механик — подписывайся</span></span>
+    </a>
+    <div class="card"><h3>🆕 Что нового <span class="sub" id="news-date"></span></h3><div id="news"></div></div>
+    <div class="card">
+      <h3>📌 Пометки в справочнике</h3>
+      <p><span class="tag game">в игре</span> — проверено в самой игре или в её справочнике.</p>
+      <p><span class="tag ok">точно</span> — подтвердили разработчики или сходится у многих игроков.</p>
+      <p><span class="tag rumor">не подтверждено</span> — так говорят игроки, проверь сам. Цифры могут поменяться с патчем: игра в раннем доступе.</p>
+    </div>
+    <div class="card">
+      <h3>🔗 Официально</h3>
+      <ul><li>Discord игры: <a href="https://discord.gg/robrun" target="_blank" rel="noopener">discord.gg/robrun</a></li>
+      <li>Новости — во вкладке игры в Steam</li>
+      <li>Продажа валюты за реальные деньги запрещена Kefir — за это банят.</li></ul>
+    </div>
+    <div class="card">
+      <h3>✉️ Нашёл ошибку или есть идея?</h3>
+      <p class="sub">Это связь с автором справочника, а не с поддержкой игры. Баги игры — в Discord ROB RUN.</p>
+      <div class="chips" id="fb-kind">
+        <button class="chip" data-k="data" aria-pressed="true">Неверные данные</button>
+        <button class="chip" data-k="idea" aria-pressed="false">Идея</button>
+        <button class="chip" data-k="bug" aria-pressed="false">Не работает</button>
+      </div>
+      <textarea id="fb-text" maxlength="1500" placeholder="Что не так или что добавить?"></textarea>
+      <button class="btn" id="fb-send">Отправить</button>
+      <div class="note" id="fb-msg"></div>
+    </div>
+    <p class="note" style="text-align:center">Неофициальный фан-справочник. ROB RUN — игра Kefir.</p>
+  </section>
+</div>
+
+<div class="overlay" id="sr" hidden>
+  <div class="wrap">
+    <div class="row"><input type="text" id="sr-q" placeholder="Поиск: взятка, банк, рейд, дрель…" autocomplete="off" style="flex:1"><button class="icon-btn" id="sr-close" aria-label="Закрыть">✕</button></div>
+    <div class="list" id="sr-list"></div>
+  </div>
+</div>
+
+<nav class="bar"><div class="in">
+  <button data-v="guide" aria-current="page"><i>📖</i>Гайд</button>
+  <button data-v="wipe"><i>🚨</i>Вайп</button>
+  <button data-v="calc"><i>🧮</i>Счёт</button>
+  <button data-v="info"><i>ℹ️</i>Инфо</button>
+</div></nav>
+
+<script>
+const WORKER = "https://robrun-helper.9--ot.workers.dev";
+const BOT = "rob_runhelper_bot";                // username бота
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const tg = window.Telegram && window.Telegram.WebApp;
+const inTg = !!(tg && tg.initData);
+if (inTg) { tg.ready(); tg.expand(); try { tg.setHeaderColor("#0a0c0f"); tg.setBackgroundColor("#0a0c0f"); tg.setBottomBarColor && tg.setBottomBarColor("#090b0e"); } catch (e) {} }
+const haptic = k => { try { if (tg && tg.HapticFeedback) k ? tg.HapticFeedback.notificationOccurred(k) : tg.HapticFeedback.selectionChanged(); } catch (e) {} };
+const save = (k, v) => { try { localStorage.setItem("rr:" + k, JSON.stringify(v)); } catch (e) {} };
+const load = (k, d) => { try { const v = localStorage.getItem("rr:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } };
+const money = n => Math.round(n).toLocaleString("ru-RU") + " $";
+
+/* ---------- Данные гайда ----------
+   Пометки: g — проверено в игре/её справочнике, ok — точно (разработчики или много игроков), r — не подтверждено.
+   [текст, пометка]; в тексте можно <b>, <kbd>. */
+const GUIDE = [
+ {id:"start", t:"🚀 С чего начать", items:[
+  ["Ты начинаешь <b>гражданским</b>: без маски тебя никто не трогает, при смерти сумка и снаряжение остаются.", "ok"],
+  ["Первый час играй без маски: изучи карту Looty Bay, мусорки, банк, мотель Ленни, фургоны скупщиков.", "ok"],
+  ["Открой <b>счёт в банке Looty Bay</b> — это можно только без маски. Счёт нужен для взятки и хранения денег.", "ok"],
+  ["Нет своей машины — бесплатная аренда на ближайшем терминале парковки.", "ok"],
+  ["Пати — до 3 человек. Клан — до 100, живёт только на одном сервере.", "ok"],
+  ["Соло выгоднее, чем кажется: соло-игрок стартует с 4-го уровня известности (+35% у скупщика).", "ok"],
+ ]},
+ {id:"roles", t:"🎭 Роли", roles:true, items:[
+  ["Стать преступником — <b>зажать <kbd>F</kbd></b> и надеть маску. Только преступник может продавать краденое скупщику.", "ok"],
+  ["Стать полицейским — полицейский участок → NPC → «Start Duty».", "ok"],
+  ["Снять маску мало: статус преступника уходит, только когда <b>покинешь Looty Bay</b>.", "ok"],
+  ["Смерть преступника в Looty Bay или в пустыне — потеря <b>всего</b>, что несёшь.", "ok"],
+  ["Продавцы в магазинах звонят в полицию, увидев преступника. Наведи на них оружие — звонок прекратится.", "ok"],
+  ["Лимит полицейских — 4 на город.", "r"],
+ ]},
+ {id:"money", t:"💵 Деньги", items:[
+  ["<b>Грязная наличка</b> — с ограблений и продажи. Её крадут и конфискуют.", "ok"],
+  ["<b>Чистые деньги</b> лежат на счёте в банке. До рейда их не украдут. Снятые в банкомате снова становятся грязными.", "ok"],
+  ["Отмыть: <b>стол отмывания</b> на своей базе (работает, пока ты офлайн) или <b>Ленни</b> в мотеле за процент.", "ok"],
+  ["<b>Скупщик</b> — фургон со значком <b>$</b> на карте. Берёт краденое и лут, только у преступников.", "ok"],
+  ["<b>Контрабандист</b> берёт груз: статуи, реагенты, кристаллы и т. п.", "ok"],
+  ["<b>Центр продаж района</b> платит больше, но только жителям района.", "ok"],
+  ["Продал — <b>сразу забирай деньги со стойки</b>, иначе их заберут другие.", "ok"],
+  ["Известность у скупщика: ур. 2 +10%, 3 +20%, 4 +35%, 5 +50%. У контрабандиста: +5/10/15/25%.", "g"],
+  ["Стоимость открытия счёта: то ли 5 000 $, то ли бесплатно — проверь сам.", "r"],
+ ]},
+ {id:"cops", t:"🚓 Арест и взятка", items:[
+  ["Сдаться (<kbd>Q</kbd>) или попасть под арест = теряешь <b>только сумку</b>, надетое снаряжение остаётся.", "ok"],
+  ["<b>Взятку платят со счёта в банке</b>, не наличкой. Принял коп взятку — уходишь со всем лутом.", "ok"],
+  ["Сдаться лучше, чем умереть: умер преступником — потерял всё.", "ok"],
+  ["Уличный арест не даёт тюремного срока, только камеру.", "ok"],
+  ["Взятки — шагами по 10 000 $ до 200 000 $.", "r"],
+ ]},
+ {id:"cop", t:"👮 Играть за копа", items:[
+  ["Арестовать можно сдавшегося или вырубленного: подойти и <kbd>E</kbd>.", "ok"],
+  ["Деньги за правомерные действия идут на счёт, в конце смены выдают конфискат на заработанную сумму.", "g"],
+  ["<b>За задержание живым — дополнительная награда.</b> Не убивай — арестуй.", "g"],
+  ["Не арестовывай одного посреди банды: отобьют.", "ok"],
+  ["Арест ≈ 9 000–15 000 $, убийство ≈ 2 000 $.", "r"],
+ ]},
+ {id:"heist", t:"🏦 Ограбления", heist:true, items:[
+  ["Разведка — <b>гражданским</b>: не теряешь вещи при смерти. Спрятался — маска.", "ok"],
+  ["Держи персонал на прицеле. Камеры и сигнализацию — сломай или вскрой электрощит.", "ok"],
+  ["<b>Отмычка не включает сигнализацию.</b>", "ok"],
+  ["Лут в безопасности только <b>за пределами Looty Bay</b>: копы перекрывают мосты.", "ok"],
+  ["Бартер за инструменты — у <b>Подозрительной двери</b> в мотеле Ленни.", "ok"],
+  ["Банк — до 424 000 $ за удачный заход.", "r"],
+ ]},
+ {id:"base", t:"🏠 База и поселения", items:[
+  ["Строить можно только в поселении, у которого есть владелец: найди свободный участок и заплати аренду у таблички.", "ok"],
+  ["Участки и поселения Tier 1 стоят <b>документы</b>, а не деньги.", "ok"],
+  ["Владелец поселения получает налог с отмывания и покупок жителей, своя база — бесплатно.", "ok"],
+  ["<b>Мастер-ключ</b> открывает чужие хранилища — базы реально грабят.", "ok"],
+  ["Бизнесы на базе (ферма, лаборатория) после патча 04.11 приносят заметно больше.", "ok"],
+  ["Ферма — от 320 000 $, лаборатория — от 365 000 $. Дым над зданием выдаёт работающую лабораторию.", "r"],
+ ]},
+ {id:"prison", t:"⛓ Тюрьма и авторитет", items:[
+  ["Тюрьма — это экран выбора штата. Срок — не время ожидания, а счётчик прогресса. Выйти можно когда угодно.", "ok"],
+  ["Сбежать: сначала <b>тату-мастер</b> (меню авторитета), потом <b>унитаз в камере</b> → выбор штата.", "ok"],
+  ["Срок и авторитет не сгорают никогда. За них тату-мастер даёт тату и награды.", "ok"],
+  ["Высокий авторитет открывает больше товаров на чёрном рынке. Тату можно скрыть.", "ok"],
+  ["Сдаться федералам самому = потерять всё имущество на сервере, выйти из клана, сгорят неполученные награды из почты.", "ok"],
+  ["Долг Ленни 1 000 000 $: если погасить — +10 лет срока и скин.", "r"],
+ ]},
+ {id:"fps", t:"⚡ Больше FPS", items:[
+  ["<b>«Разрешение рендера»</b> ставь ровно <b>1,0</b>. Больше единицы — игра рисует картинку больше экрана.", "g"],
+  ["Выключи HBAO, отражения (SSR), размытие в движении и глубину резкости — разницы почти не видно.", "g"],
+  ["Ограничь FPS в панели видеокарты — просадки в толпе станут мягче.", "g"],
+  ["В толпе упор в процессор — это ограничение самой игры, не твоего ПК.", "g"],
+ ]},
+];
+const HEISTS = [
+  ["Хранилище банка", "Дрель", "весь город, дрель шумная"],
+  ["Золотое хранилище", "ID-карта", "оповещение городу"],
+  ["Галерея «BIG EGG»", "Стеклорез", "стекло включает тревогу"],
+  ["Машина Buletti (Grand Hotel)", "Глушилка", "оповещение городу"],
+  ["Оружейная участка", "ID-карта", "оповещение городу"],
+];
+const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Машины и склады <span class='tag rumor'>?</span>"];
+const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin <span class='tag rumor'>?</span>"];
+const NEWS = [
+  {v:1, t:"16.11.2026", items:["Первая версия справочника: гайд, таймер федерального рейда, калькулятор скупщика и срока.", "Бот присылает напоминания о рейде в твоём штате и об открытии новых штатов."]},
+];
+const TAG = {g:'<span class="tag game">в игре</span>', ok:'<span class="tag ok">точно</span>', r:'<span class="tag rumor">не подтверждено</span>'};
+
+/* ---------- Гайд ---------- */
+let gCur = load("gCur", "start");
+function renderGuide(){
+  $("g-chips").innerHTML = GUIDE.map(s => `<button class="chip" data-s="${s.id}" aria-pressed="${s.id === gCur}">${s.t}</button>`).join("");
+  const s = GUIDE.find(x => x.id === gCur) || GUIDE[0];
+  let html = "";
+  if (s.roles) html += `<div class="roles">
+    <div class="role" style="--c:var(--cash)"><b>Гражданский</b><span>Без маски. Мусорки, разведка, банк. Смерть — вещи остаются.</span></div>
+    <div class="role" style="--c:var(--siren)"><b>Преступник</b><span>Маска <kbd>F</kbd>. Грабит и продаёт. Смерть — теряет всё.</span></div>
+    <div class="role" style="--c:var(--cop)"><b>Полицейский</b><span>Участок → Start Duty. Арестовывает, зарплата на счёт.</span></div></div>`;
+  if (s.heist) html += `<div class="card"><table><tr><th>Цель</th><th>Нужно</th><th>Тревога</th></tr>${HEISTS.map(h => `<tr><td>${h[0]}</td><td><b>${h[1]}</b></td><td class="sub">${h[2]}</td></tr>`).join("")}</table></div>`;
+  html += `<div class="card"><h3>${s.t}</h3><ul>${s.items.map(i => `<li>${i[0]} ${TAG[i[1]]}</li>`).join("")}</ul></div>`;
+  $("g-list").innerHTML = html;
+}
+$("g-chips").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b) return; gCur = b.dataset.s; save("gCur", gCur); haptic(); renderGuide(); });
+
+/* ---------- Вайп ---------- */
+// Открытие штата: EU — 17:00 UTC (20:00 МСК), East US — 20:00 по Нью-Йорку.
+function openUtc(region, dayOffset){
+  const now = new Date();
+  if (region === "eu") {
+    const d = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 17);
+    return d - dayOffset * 864e5;
+  }
+  // 20:00 в Нью-Йорку с учётом летнего времени
+  const ny = new Date(now.toLocaleString("en-US", {timeZone: "America/New_York"}));
+  const utc = new Date(now.toLocaleString("en-US", {timeZone: "UTC"}));
+  const off = Math.round((utc - ny) / 36e5);           // 4 или 5 часов, не зависит от пояса телефона
+  const local = new Date(now.getTime() - off * 36e5);
+  return Date.UTC(local.getUTCFullYear(), local.getUTCMonth(), local.getUTCDate(), 20 + off) - dayOffset * 864e5;
+}
+const fmtLeft = ms => { if (ms <= 0) return "уже был"; const h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4); return h >= 24 ? `${Math.floor(h / 24)} д ${h % 24} ч` : `${h} ч ${String(m).padStart(2, "0")} м`; };
+const fmtAt = ms => new Date(ms).toLocaleString("ru-RU", {weekday:"short", day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit", timeZone:"Europe/Moscow"}) + " МСК";
+let raid = load("raid", null);   // {region, open: ms}
+function fillDays(){
+  const labels = ["сегодня", "вчера", "2 дня назад", "3 дня назад", "4 дня назад", "5 дней назад", "6 дней назад"];
+  $("raid-day").innerHTML = `<option value="">— выбери —</option>` + labels.map((l, i) => `<option value="${i}">${l}</option>`).join("");
+  if (raid) {
+    $("raid-region").value = raid.region;
+    let raidAt = raid.open + 7 * 864e5;
+    while (raidAt < Date.now()) { raid.open += 7 * 864e5; raidAt += 7 * 864e5; }   // штат пережил рейд — следующий цикл
+    const off = Math.round((openUtc(raid.region, 0) - raid.open) / 864e5);
+    if (off >= 0 && off <= 6) $("raid-day").value = String(off);
+  }
+}
+function renderWipe(){
+  const card = $("raid-card");
+  if (raid) {
+    let at = raid.open + 7 * 864e5;
+    while (at < Date.now()) at += 7 * 864e5;
+    const left = at - Date.now();
+    $("raid-left").textContent = fmtLeft(left);
+    $("raid-at").textContent = fmtAt(at) + (left < 864e5 ? " — трать деньги!" : "");
+    card.classList.toggle("safe", left > 2 * 864e5);
+  } else { $("raid-left").textContent = "—"; $("raid-at").textContent = "Укажи, когда открылся твой штат"; card.classList.remove("safe"); }
+  const reg = $("raid-region").value;
+  let nx = openUtc(reg, 0); if (nx <= Date.now()) nx += 864e5;
+  $("next-region").textContent = reg === "eu" ? "EU" : "East US";
+  $("next-left").textContent = fmtLeft(nx - Date.now());
+  $("next-at").textContent = fmtAt(nx);
+}
+function onRaidChange(){
+  const v = $("raid-day").value, region = $("raid-region").value;
+  raid = v === "" ? null : {region, open: openUtc(region, Number(v))};
+  save("raid", raid); haptic(); renderWipe();
+}
+$("raid-region").addEventListener("change", onRaidChange);
+$("raid-day").addEventListener("change", onRaidChange);
+$("raid-bot").addEventListener("click", () => {
+  const url = `https://t.me/${BOT}?start=raid`;
+  if (inTg && tg.openTelegramLink) { tg.openTelegramLink(url); tg.close && setTimeout(() => tg.close(), 300); } else window.open(url, "_blank");
+});
+$("burn-lose").innerHTML = LOSE.map(x => `<li>${x}</li>`).join("");
+$("burn-keep").innerHTML = KEEP.map(x => `<li>${x}</li>`).join("");
+
+/* ---------- Калькуляторы ---------- */
+const BONUS = {fence: [0, 0, 10, 20, 35, 50], smug: [0, 0, 5, 10, 15, 25]};
+let lvl = load("lvl", 4);
+function calc(){
+  $("c-lvl").innerHTML = [1, 2, 3, 4, 5].map(l => `<button class="chip" data-l="${l}" aria-pressed="${l === lvl}">Ур. ${l}${l === 4 ? " (соло)" : ""}</button>`).join("");
+  const base = Math.max(0, Number($("c-base").value) || 0), who = $("c-who").value;
+  const b = BONUS[who][lvl], got = base * (1 + b / 100);
+  $("c-res").innerHTML = `<span>Бонус известности</span><b>+${b}%</b><span>Получишь</span><b class="hi">${money(got)}</b><span>Прибавка</span><b>${money(got - base)}</b>` +
+    (lvl < 5 ? `<span>На 5-м уровне было бы</span><b>${money(base * (1 + BONUS[who][5] / 100))}</b>` : "");
+  const sum = Math.max(0, Number($("t-sum").value) || 0);
+  const years = Math.min(40, 1 + Math.floor(sum / 5e5));
+  $("t-res").innerHTML = `<span>Срок за этот рейд</span><b class="hi">${years} ${years % 10 === 1 && years !== 11 ? "год" : (years % 10 >= 2 && years % 10 <= 4 && (years < 12 || years > 14)) ? "года" : "лет"}</b>` +
+    (years < 40 ? `<span>До следующего года</span><b>${money(5e5 - sum % 5e5)}</b>` : `<span>Достигнут потолок</span><b>40 лет</b>`);
+  const w = Math.max(0, Number($("w-sum").value) || 0);
+  $("w-res").innerHTML = `<span>«На себе» (×0,5, до 100 000 $)</span><b>${money(Math.min(w, 1e5) * 0.5)}</b><span>На столе отмывания</span><b class="hi">почти всё, минус налог</b>`;
+}
+$("c-lvl").addEventListener("click", e => { const b = e.target.closest("[data-l]"); if (!b) return; lvl = Number(b.dataset.l); save("lvl", lvl); haptic(); calc(); });
+["c-base", "c-who", "t-sum", "w-sum"].forEach(id => $(id).addEventListener("input", calc));
+
+/* ---------- Навигация ---------- */
+let cur = "guide";
+function show(v){
+  cur = v;
+  ["guide", "wipe", "calc", "info"].forEach(x => $("v-" + x).hidden = x !== v);
+  document.querySelectorAll("nav.bar button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+  if (v === "info") markNewsSeen();
+  window.scrollTo(0, 0); haptic();
+}
+document.querySelector("nav.bar").addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (b) show(b.dataset.v); });
+
+/* ---------- Поиск ---------- */
+const norm = s => s.toLowerCase().replace(/ё/g, "е").replace(/<[^>]+>/g, "");
+function searchIndex(){
+  const out = [];
+  GUIDE.forEach(s => s.items.forEach(i => out.push({where: s.t, text: norm(i[0]), html: i[0], go: () => { gCur = s.id; save("gCur", gCur); renderGuide(); show("guide"); }})));
+  HEISTS.forEach(h => out.push({where: "🏦 Ограбления", text: norm(h.join(" ")), html: `${h[0]}: нужно <b>${h[1]}</b>`, go: () => { gCur = "heist"; renderGuide(); show("guide"); }}));
+  [...LOSE.map(x => "Сгорает на рейде: " + x), ...KEEP.map(x => "Остаётся после рейда: " + x)].forEach(x => out.push({where: "🚨 Вайп", text: norm(x), html: x, go: () => show("wipe")}));
+  return out;
+}
+let IDX;
+function runSearch(){
+  IDX = IDX || searchIndex();
+  const q = norm($("sr-q").value.trim());
+  if (q.length < 2) { $("sr-list").innerHTML = `<p class="note">Введи хотя бы 2 буквы.</p>`; return; }
+  const words = q.split(/\s+/);
+  const hits = IDX.filter(x => words.every(w => x.text.includes(w))).slice(0, 30);
+  $("sr-list").innerHTML = hits.length ? hits.map((h, i) => `<div class="hit" data-i="${i}"><small>${h.where}</small>${h.html}</div>`).join("") : `<p class="note">Ничего не нашлось. Напиши в «Инфо → Нашёл ошибку», что добавить.</p>`;
+  $("sr-list").onclick = e => { const d = e.target.closest("[data-i]"); if (!d) return; $("sr").hidden = true; hits[Number(d.dataset.i)].go(); };
+}
+$("btn-search").addEventListener("click", () => { $("sr").hidden = false; runSearch(); setTimeout(() => $("sr-q").focus(), 60); haptic(); });
+$("sr-close").addEventListener("click", () => $("sr").hidden = true);
+$("sr-q").addEventListener("input", runSearch);
+
+/* ---------- Что нового ---------- */
+let newsSeen = load("newsSeen", 0);
+function renderNews(){
+  $("news-date").textContent = "· " + NEWS[0].t;
+  $("news").innerHTML = NEWS.map(n => `<div><b>${n.t}</b><ul>${n.items.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>`).join("");
+  if (newsSeen !== NEWS[0].v) document.querySelector('nav.bar button[data-v="info"]').insertAdjacentHTML("beforeend", '<span class="dot"></span>');
+}
+function markNewsSeen(){ if (newsSeen === NEWS[0].v) return; newsSeen = NEWS[0].v; save("newsSeen", newsSeen); const d = document.querySelector("nav.bar .dot"); if (d) d.remove(); }
+
+/* ---------- Отзывы ---------- */
+let fbKind = "data";
+$("fb-kind").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if (!b) return; fbKind = b.dataset.k; document.querySelectorAll("#fb-kind .chip").forEach(c => c.setAttribute("aria-pressed", c === b)); haptic(); });
+$("fb-send").addEventListener("click", async () => {
+  const text = $("fb-text").value.trim(), msg = $("fb-msg");
+  if (text.length < 5) { msg.className = "note err-msg"; msg.textContent = "Напиши чуть подробнее."; return; }
+  $("fb-send").disabled = true; msg.className = "note"; msg.textContent = "Отправляю…";
+  try {
+    const r = await fetch(WORKER + "/feedback", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({kind: fbKind, text, tab: cur, platform: tg ? tg.platform : "web", initData: tg ? tg.initData : ""})});
+    const d = await r.json();
+    if (d.ok) { msg.className = "note ok-msg"; msg.textContent = d.reply ? "Спасибо! Ответ придёт в бота." : "Спасибо! Передал автору."; $("fb-text").value = ""; haptic("success"); }
+    else { msg.className = "note err-msg"; msg.textContent = d.error || "Не получилось, попробуй позже."; haptic("error"); }
+  } catch (e) { msg.className = "note err-msg"; msg.textContent = "Нет связи с сервером, попробуй позже."; }
+  $("fb-send").disabled = false;
+});
+
+/* ---------- Старт ---------- */
+fillDays(); renderGuide(); renderWipe(); calc(); renderNews();
+setInterval(renderWipe, 30e3);
+const startTab = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("tab");
+if (["wipe", "calc", "info"].includes(startTab)) show(startTab);
+if (inTg) fetch(WORKER + "/hello", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({initData: tg.initData})}).catch(() => {});
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
