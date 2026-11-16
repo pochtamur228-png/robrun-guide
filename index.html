@@ -84,7 +84,7 @@ textarea{min-height:110px;resize:vertical;font:inherit}
 .burn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .burn .card{border-top:3px solid var(--c)}
 nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(8,14,22,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:2px solid var(--lime);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
-nav.bar .in{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;width:100%;max-width:640px}
+nav.bar .in{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;width:100%;max-width:640px}
 nav.bar button{border:0;background:none;padding:6px 2px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted);cursor:pointer;position:relative}
 nav.bar button i{font-style:normal;font-size:20px;line-height:1}
 nav.bar button[aria-current="page"]{color:var(--btn-fg);background:var(--lime);font-weight:700}
@@ -112,6 +112,12 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 .legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12.5px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:5px}
 .legend i{width:14px;height:14px;border-radius:50%;display:inline-block;border:2px solid #081019}
+.it-ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:22px;flex:none;background:var(--c);box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+.it-head{display:flex;gap:10px;align-items:center}
+.it-head h3{margin:0}
+.it-tbl td:first-child{font-weight:600;white-space:nowrap}
+.it-tbl td{font-size:12.8px}
+.it-tbl .sub{font-size:11.5px}
 @media (max-width:380px){.roles{grid-template-columns:1fr}.burn{grid-template-columns:1fr}}
 </style>
 </head>
@@ -129,6 +135,13 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
   <section id="v-guide">
     <div class="chips" id="g-chips"></div>
     <div class="list" id="g-list" style="margin-top:10px"></div>
+  </section>
+
+  <!-- ===== ВЕЩИ ===== -->
+  <section id="v-items" hidden>
+    <div class="chips" id="it-chips"></div>
+    <div class="list" id="it-list" style="margin-top:10px"></div>
+    <p class="note">Цифры — из фан-баз и игрового файла, могут отличаться на твоём сервере и меняться с патчами. Как выглядит предмет — в <a href="https://metaforge.app/rob-run/database" target="_blank" rel="noopener">фан-базе MetaForge</a> (там есть картинки).</p>
   </section>
 
   <!-- ===== ВАЙП ===== -->
@@ -285,6 +298,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 <nav class="bar"><div class="in">
   <button data-v="guide" aria-current="page"><i>📖</i>Гайд</button>
   <button data-v="map"><i>🗺</i>Карта</button>
+  <button data-v="items"><i>🎒</i>Вещи</button>
   <button data-v="wipe"><i>🚨</i>Вайп</button>
   <button data-v="calc"><i>🧮</i>Счёт</button>
   <button data-v="info"><i>ℹ️</i>Инфо</button>
@@ -432,6 +446,22 @@ const GUIDE = [
   ["Каждый убитый мирный — очко розыска, максимум 3.", "r"],
   ["Ставь себе условие выхода заранее: полная сумка или приехала полиция — уходишь.", "ok"],
  ]},
+ {id:"tree", t:"🌳 Ветка прокачки", items:[
+  ["Прокачка — это <b>дерево поставок</b> у торговца с чёрного рынка (Trade Laptop, клавиша <kbd>H</kbd>). В дереве 172 товара в ветках: документы, машины, строительство, оружие, мебель, снаряжение, производство, гаджеты, полиция.", "r"],
+  ["У каждого товара три условия: разовая плата за <b>исследование</b>, <b>уровень торговца</b> (зависит от района твоего участка) и иногда <b>тюремный срок</b> — такие товары скрыты за «?».", "r"],
+  ["Уровень торговца: без участка — I, участок в районе 2-го уровня — II, 3-го — III. Двигаться можно только по одному уровню.", "r"],
+  ["Товары открываются <b>цепочкой</b>: следующий — только после предыдущего. Исследование не даёт сам предмет — потом каждый экземпляр покупаешь на ноутбуке.", "ok"],
+  ["Исследование оплачивается <b>грязной</b> наличкой. Цены исследований могут немного отличаться от сервера к серверу.", "r"],
+  ["Открыть всё дерево стоит около 36 млн $ — за неделю до вайпа это почти никому не нужно. Выбирай путь под свою роль.", "r"],
+  ["<b>Путь грабителя</b> (~250 000 $): отмычка и сумки → мини-дрель для больших сейфов. Нужен торговец II уровня.", "r"],
+  ["<b>Путь курьера</b> (~150 000 $): фургон Longhorn Van (6 мест груза против 1 у Tensa) → верстаки для груза.", "r"],
+  ["<b>Путь производства</b> (~430 000 $): право на участок → ферма или лаборатория. Цепочки независимы — доводи одну до конца, потом вторую.", "r"],
+  ["<b>Путь копа</b> (~255 000 $): снаряжение копу выдают бесплатно, в дереве — значки и полицейская рация (рация требует срок 60 лет).", "r"],
+  ["<b>Путь защиты базы</b> (~120 000 $): электронный предохранитель (10 000 $ исследование, 20 000 $ штука) — рейды на тебя станут дороже.", "r"],
+  ["Старт соло на свежем сервере: DP-9 (бесплатно, 300 $) → KL-545 (25 000 $ исследование, 6 000 $ за ствол).", "r"],
+  ["Частые ошибки: открывать Mk2/Mk3 слишком рано, покупать машину раньше дома, начинать сразу и ферму, и лабораторию.", "r"],
+  ["Цепочки оружия: DP-9 → LBR-44 → Vulture 50; Harris 500 → ORDR-12 → TAG-12K; MC-10 → JP-7 → AP Scalar; KL-545 → RC 5.56 → SR Reaper. Особые: CB45, STAR-H и DRM-14 требуют тюремный срок. Цифры — во вкладке «Вещи».", "r"],
+ ]},
  {id:"market", t:"🛒 Рынок и исследования", items:[
   ["Чёрный рынок — через <b>Trade Laptop</b>. Сначала разблокируешь поставку (исследование), потом покупаешь сам товар — исследование вещь не даёт.", "r"],
   ["Исследования и чёрный рынок оплачиваются <b>грязной</b> наличкой.", "r"],
@@ -535,6 +565,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:7, t:"16.11.2026", items:["Новая вкладка «Вещи»: оружие (урон, темп, магазин, цены открытия), броня, сумки, гранаты, лечение, инструменты.", "Новый раздел «Ветка прокачки»: как устроено дерево поставок и какой путь выбрать под свою роль."]},
   {v:6, t:"16.11.2026", items:["Новый раздел «Что изменилось за неделю»: официальный FAQ Kefir от 13.11, изменения 05.11 и 11.11.", "Обновлены советы про груз и прочность снаряжения."]},
   {v:5, t:"16.11.2026", items:["«Вся карта»: схема глобальной карты с точным расположением 10 районов — по официальному скриншоту Kefir.", "Новый раздел «Пирамида власти» и официальные детали: заработок копа, база, роль при въезде в город, особые постройки."]},
   {v:4, t:"16.11.2026", items:["Карта пустыни: 10 районов вокруг Looty Bay с уровнями.", "Новые разделы: управление, мир и районы, участки и налоги, защита и рейды баз, машины, оружие и броня.", "Дополнены коп (звания и значки) и тюрьма (награды авторитета)."]},
@@ -718,6 +749,81 @@ $("map-tabs").addEventListener("click", e => {
   legend(); haptic();
 });
 
+/* ---------- Вещи: каталог предметов ----------
+   Значки — свои (по типу), без игровых иконок. stats: урон · выстрелов/мин · магазин (Mk1 → Mk3).
+   price: цена покупки на чёрном рынке; res: исследование Mk1 / Mk2 / Mk3; ур — уровень района; лет — нужный срок. */
+const ITEMS = [
+ {id:"pistol", t:"Пистолеты", i:"🔫", c:"#8fd0ff", h:["Ствол", "Урон · темп · магазин", "Открытие"], rows:[
+  ["DP-9", "18 · 333 · 14", "Mk1 бесплатно (300 $ за ствол), Mk2 25 000 $"],
+  ["LBR-44", "34 · 200 · 6", "100 000 / 200 000 $, ур. 2"],
+  ["Vulture 50", "36 · 240 · 7", "300 000 / 600 000 $, ур. 3"],
+ ]},
+ {id:"shotgun", t:"Дробовики", i:"💥", c:"#ffb36b", h:["Ствол", "Урон · темп · магазин", "Открытие"], rows:[
+  ["Harris 500", "9×8 · 120 · 5→7", "15 000 / 30 000 / 60 000 $"],
+  ["ORDR-12", "9×8 · 171 · 6→8", "160 000 / 320 000 / 640 000 $, ур. 2–3"],
+  ["TAG-12K", "9×8 · 240 · 5→8", "400 000 / 800 000 / 1,6 млн $, ур. 3"],
+ ]},
+ {id:"smg", t:"Пистолеты-пулемёты", i:"⚡", c:"#c6ef3a", h:["Ствол", "Урон · темп · магазин", "Открытие"], rows:[
+  ["MC-10", "12 · 667 · 20→40", "15 000 / 30 000 / 60 000 $"],
+  ["CB45", "14 · 545 · 25→40", "15 000 / 30 000 / 60 000 $ + срок 15 / 25 / 35 лет"],
+  ["JP-7", "15 · 750 · 25→40", "160 000 / 320 000 / 640 000 $, ур. 2–3"],
+  ["PDW90", "13 · 857 · 50", "—"],
+  ["AP Scalar", "14 · 1000 · 25→45", "400 000 / 800 000 / 1,6 млн $, ур. 3"],
+ ]},
+ {id:"rifle", t:"Автоматы и пулемёт", i:"🎯", c:"#ff8a7a", h:["Ствол", "Урон · темп · магазин", "Открытие"], rows:[
+  ["KL-545", "15 · 600 · 30→45", "25 000 / 50 000 / 100 000 $ (6 000 $ за ствол) — лучший старт"],
+  ["RC 5.56", "16 · 667 · 30→50", "200 000 / 400 000 / 800 000 $, ур. 2–3"],
+  ["SR Reaper", "17 · 750 · 20→40", "400 000 / 800 000 / 1,6 млн $, ур. 3 (Mk1 ≈120 000 $)"],
+  ["STAR-H", "21 · 500 · 20→40", "100 000 / 200 000 / 400 000 $ + срок 180–200 лет"],
+  ["DRM-14", "34 · 240 · 10→20", "200 000 / 400 000 / 800 000 $ + срок 950–1000 лет"],
+  ["LM 249 Mk2", "18 · 706 · 200", "пулемёт, только Mk2"],
+ ]},
+ {id:"armor", t:"Броня и пластины", i:"🛡", c:"#a9b6c4", h:["Предмет", "Цена", "Открытие"], rows:[
+  ["Лёгкий бронежилет", "4 000 $", "исследование 5 000 $"],
+  ["Средний бронежилет", "15 000 $", "15 000 $"],
+  ["Штурмовой бронежилет", "70 000 $ · броня 75", "250 000 $, ур. 2"],
+  ["Тяжёлый бронежилет", "140 000 $", "500 000 $, ур. 3"],
+  ["Bastion", "≈350 000 $", "как получить — не уточнено"],
+  ["Стальная пластина", "1 000 / 5 000 $", "5 000 $; легендарная — 100 000 $, ур. 3, срок 225 лет"],
+ ]},
+ {id:"bags", t:"Сумки и подсумки", i:"🎒", c:"#f5b860", h:["Предмет", "Цена", "Открытие"], rows:[
+  ["Спортивная сумка", "5 000 / 15 000 / 40 000 $", "5 000 / 35 000 (ур. 2) / 150 000 $ (ур. 3)"],
+  ["Универсальный подсумок", "250 / 1 200 / 2 700 / 12 000 $", "5 000 / 10 000 / 25 000 (ур. 2) / 50 000 $ (ур. 3)"],
+ ]},
+ {id:"grenade", t:"Гранаты", i:"💣", c:"#ff6a5a", h:["Граната", "Цена", "Открытие"], rows:[
+  ["Светошумовая", "4 000 $", "25 000 $"],
+  ["Осколочная", "14 960 $", "75 000 $, ур. 2"],
+  ["Дымовая", "покупка отключена 11.11", "только из лута, редко"],
+  ["Газовая", "—", "есть в базе предметов"],
+ ]},
+ {id:"med", t:"Лечение", i:"💊", c:"#7ee0c3", h:["Предмет", "Цена", "Открытие"], rows:[
+  ["Аптечка AFAK", "≈200 $", "5 000 $ + срок 5 лет"],
+  ["Обезболивающее", "—", "10 000 $; улучшенное 20 000 $ (ур. 2)"],
+  ["Инъектор", "≈2 000 $", "25 000 $ (ур. 2); легендарный 50 000 $ (ур. 3)"],
+  ["Аптечка на базе", "—", "шкаф первой помощи 5 000 $"],
+ ]},
+ {id:"tools", t:"Инструменты", i:"🛠", c:"#d6a2ff", h:["Предмет", "Цена", "Зачем"], rows:[
+  ["Отмычка", "99 $", "двери без тревоги, багажники; открытие 5 000 $"],
+  ["Мини-дрель", "≈18 000 $", "большие сейфы ≈60 с; открытие 100 000 $, ур. 2"],
+  ["Мастер-ключ", "55 000 $", "чужие сейфы; ур. 2"],
+  ["Болторез", "3 000 $", "ур. 2"],
+  ["Экшн-камера", "—", "для бартера дрели и дешифратора"],
+  ["Кодовый планшет", "—", "заполняется взломом сейфов; бартер стеклореза"],
+  ["USB-хакер", "—", "взлом компьютеров; бартер дрели"],
+  ["Ключи ячеек", "100 000 $", "ур. 3; бартер ID-карты банка"],
+  ["Дешифратор", "—", "взлом баз: обычный −1, эпический −3 защиты"],
+ ]},
+];
+let itCur = load("itCur", "rifle");
+function renderItems(){
+  $("it-chips").innerHTML = ITEMS.map(c => `<button class="chip" data-it="${c.id}" aria-pressed="${c.id === itCur}">${c.i} ${c.t}</button>`).join("");
+  const c = ITEMS.find(x => x.id === itCur) || ITEMS[0];
+  $("it-list").innerHTML = `<div class="card"><div class="it-head"><span class="it-ico" style="--c:${c.c}">${c.i}</span><h3>${c.t}</h3></div>
+    <table class="it-tbl"><tr>${c.h.map(x => `<th>${x}</th>`).join("")}</tr>${c.rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td class="sub">${r[2]}</td></tr>`).join("")}</table></div>` +
+    (["pistol", "shotgun", "smg", "rifle"].includes(c.id) ? `<div class="card"><p class="sub">Mk2 и Mk3 обычно увеличивают <b>магазин</b>, а не урон: урон и темп у версий одинаковые. Оружие теряется при смерти преступником — на вылазку бери то, что не жалко.</p></div>` : "");
+}
+$("it-chips").addEventListener("click", e => { const b = e.target.closest("[data-it]"); if (!b) return; itCur = b.dataset.it; save("itCur", itCur); haptic(); renderItems(); });
+
 /* ---------- Калькуляторы ---------- */
 const BONUS = {fence: [0, 0, 10, 20, 35, 50], smug: [0, 0, 5, 10, 15, 25]};
 let lvl = load("lvl", 4);
@@ -741,7 +847,7 @@ $("c-lvl").addEventListener("click", e => { const b = e.target.closest("[data-l]
 let cur = "guide";
 function show(v){
   cur = v;
-  ["guide", "map", "wipe", "calc", "info"].forEach(x => $("v-" + x).hidden = x !== v);
+  ["guide", "map", "items", "wipe", "calc", "info"].forEach(x => $("v-" + x).hidden = x !== v);
   document.querySelectorAll("nav.bar button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   if (v === "info") markNewsSeen();
   window.scrollTo(0, 0); haptic();
@@ -754,6 +860,7 @@ function searchIndex(){
   const out = [];
   GUIDE.forEach(s => s.items.forEach(i => out.push({where: s.t, text: norm(i[0]), html: i[0], go: () => { gCur = s.id; save("gCur", gCur); renderGuide(); show("guide"); }})));
   HEISTS.forEach(h => out.push({where: "🏦 Ограбления", text: norm(h.join(" ")), html: `${h[0]}: нужно <b>${h[1]}</b>`, go: () => { gCur = "heist"; renderGuide(); show("guide"); }}));
+  ITEMS.forEach(c => c.rows.forEach(r => out.push({where: "🎒 " + c.t, text: norm(r.join(" ") + " " + c.t), html: `<b>${r[0]}</b> — ${r[1]}; ${r[2]}`, go: () => { itCur = c.id; save("itCur", itCur); renderItems(); show("items"); }})));
   [...LOSE.map(x => "Сгорает на рейде: " + x), ...KEEP.map(x => "Остаётся после рейда: " + x)].forEach(x => out.push({where: "🚨 Вайп", text: norm(x), html: x, go: () => show("wipe")}));
   return out;
 }
@@ -798,10 +905,10 @@ $("fb-send").addEventListener("click", async () => {
 });
 
 /* ---------- Старт ---------- */
-renderGuide(); renderWipe(); renderSrvList(); loadSrv(); renderMap(); renderDesert(); calc(); renderNews();
+renderGuide(); renderWipe(); renderSrvList(); loadSrv(); renderMap(); renderDesert(); renderItems(); calc(); renderNews();
 setInterval(renderWipe, 30e3);
 const startTab = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("tab");
-if (["map", "wipe", "calc", "info"].includes(startTab)) show(startTab);
+if (["map", "items", "wipe", "calc", "info"].includes(startTab)) show(startTab);
 if (location.hash === "#desert") document.querySelector('#map-tabs [data-m="desert"]').click();
 if (inTg) fetch(WORKER + "/hello", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({initData: tg.initData})}).catch(() => {});
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(() => {});
