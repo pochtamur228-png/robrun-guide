@@ -84,7 +84,7 @@ textarea{min-height:110px;resize:vertical;font:inherit}
 .burn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .burn .card{border-top:3px solid var(--c)}
 nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(8,14,22,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:2px solid var(--lime);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
-nav.bar .in{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;width:100%;max-width:640px}
+nav.bar .in{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%;max-width:640px}
 nav.bar button{border:0;background:none;padding:6px 2px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted);cursor:pointer;position:relative}
 nav.bar button i{font-style:normal;font-size:20px;line-height:1}
 nav.bar button[aria-current="page"]{color:var(--btn-fg);background:var(--lime);font-weight:700}
@@ -280,8 +280,8 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <h3>🔓 Сколько дешифраторов на базу</h3>
       <p class="sub">Защита постройки + все предохранители ÷ сила дешифратора, с округлением вверх.</p>
       <div class="grid2">
-        <label><span class="sub">Постройка</span><select id="d-b"><option value="5">Ферма или склад (5)</option><option value="3">Лаборатория (3)</option><option value="15">Маленький дом (15)</option></select></label>
-        <label><span class="sub">Дешифратор</span><select id="d-p"><option value="3">Эпический (−3)</option><option value="1">Обычный (−1)</option></select></label>
+        <label><span class="sub">Постройка</span><select id="d-b"><option value="15">Маленький дом (15)</option><option value="30">Особняк (30)</option><option value="5">Трейлер (5)</option><option value="10">Склад (10)</option><option value="5">Мастерская (5)</option><option value="5">Плантация (5)</option><option value="3">Химлаборатория (3)</option><option value="4">Гараж (4)</option><option value="6">Большой гараж (6)</option><option value="2">Сетчатый забор / ворота (2)</option><option value="5">Металлический забор / ворота (5)</option><option value="10">Бетонный забор / ворота (10)</option></select></label>
+        <label><span class="sub">Дешифратор</span><select id="d-p"><option value="3">Эпический (−3)</option><option value="1">Обычный (−1)</option><option value="5">Легендарный (−5)</option></select></label>
       </div>
       <div class="grid2" style="grid-template-columns:1fr 1fr 1fr">
         <label><span class="sub">Предохр. +1</span><input type="number" id="d-u" inputmode="numeric" value="0" min="0"></label>
@@ -311,6 +311,30 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <label><span class="sub">Грязная наличка, $</span><input type="number" id="w-sum" inputmode="numeric" value="100000" min="0"></label>
       <div class="res" id="w-res"></div>
       <p class="note">Отмывка «на себе» (курс 0,5) — по словам игроков <span class="tag rumor">не подтверждено</span>. Стол отмывания на базе работает, даже когда ты не в игре; владелец поселения берёт налог.</p>
+    </div>
+  </section>
+
+  <section id="v-timer" hidden>
+    <div class="card">
+      <h3>⏱ Таймер кустов и лабы</h3>
+      <p class="sub">Посадил кусты или запустил реактор — запусти таймер. Когда будет готово, бот напишет тебе в Telegram (точность — до 5 минут).</p>
+      <div class="chips" id="tm-k"></div>
+      <div class="chips" id="tm-d"></div>
+      <label><span class="sub">Или своё время, минут</span><input type="number" id="tm-m" inputmode="numeric" min="1" max="720" placeholder="например 95"></label>
+      <button class="btn" id="tm-go">▶ Запустить таймер</button>
+      <div class="note" id="tm-msg"></div>
+      <div id="tm-list"></div>
+      <p class="note">Kefir не публикует время роста и варки — ставь то, что видишь у себя в игре. Игроки пишут: куст 1–2 часа, реактор I ≈60 мин, реактор II — 53.</p>
+    </div>
+    <div class="card">
+      <h3>🌿 Доход плантации</h3>
+      <p class="sub">На столе 6 кустов, в комнате до 6 столов. С куста 2–4 пакета урожая, продаёшь скупщику.</p>
+      <div class="grid2">
+        <label><span class="sub">Кусты</span><select id="g-r"><option value="4000">Обычные</option><option value="6000">Эпические</option><option value="8000">Легендарные</option></select></label>
+        <label><span class="sub">Столов</span><select id="g-t"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option selected>6</option></select></label>
+      </div>
+      <div class="res" id="g-res"></div>
+      <p class="note">Цены пакетов и стоимость комнаты/столов — по данным игроков <span class="tag rumor">не подтверждено</span>. После сбора куст отрастает сам. Улучшения стола: вентилятор +12% к росту, насос +14% (район 2), УФ-лампа +24% (район 3).</p>
     </div>
   </section>
 
@@ -363,6 +387,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
   <button data-v="items"><i>🎒</i>Вещи</button>
   <button data-v="wipe"><i>🚨</i>Вайп</button>
   <button data-v="calc"><i>🧮</i>Счёт</button>
+  <button data-v="timer"><i>⏱</i>Таймер</button>
   <button data-v="info"><i>ℹ️</i>Инфо</button>
 </div></nav>
 
@@ -685,6 +710,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:14, t:"22.11.2026", items:["Новая вкладка «Таймер»: таймер кустов, реактора и морозильника — бот напишет в Telegram, когда готово.", "Калькулятор дохода плантации.", "Дешифраторы: все постройки, заборы и ворота, легендарный дешифратор."]},
   {v:13, t:"17.11.2026", items:["Исправлено: прочность снаряжения падает при смерти гражданским; преступник при смерти теряет всё."]},
   {v:12, t:"17.11.2026", items:["Исправлено: маску в ROB RUN снять нельзя — надел, и ты преступник до выезда из Looty Bay. Разведку делай без маски."]},
   {v:11, t:"17.11.2026", items:["Карта: метки игроков — где сейчас скупщик, засада копов, хороший лут. Ставятся из Telegram, живут 3 дня, неверные скрываются голосованием.", "«Счёт»: цены от игроков — сколько реально дают скупщики (медиана за неделю)."]},
@@ -1140,11 +1166,66 @@ function calc(){
 $("c-lvl").addEventListener("click", e => { const b = e.target.closest("[data-l]"); if (!b) return; lvl = Number(b.dataset.l); save("lvl", lvl); haptic(); calc(); });
 ["c-base", "c-who", "t-sum", "w-sum"].forEach(id => $(id).addEventListener("input", calc));
 
+
+/* ---------- Таймеры (хранит и присылает бот) ---------- */
+const TK = {grow: {n: "🌿 Кусты", p: [60, 90, 120]}, react: {n: "⚗ Реактор", p: [53, 60]}, freeze: {n: "❄ Морозильник", p: [30, 60]}, own: {n: "⏱ Свой", p: [15, 30, 60]}};
+let tmK = "grow", tmM = 90, tmList = [], tmSkew = 0;
+const fmtMin = m => m >= 60 ? `${Math.floor(m / 60)} ч${m % 60 ? " " + (m % 60) + " мин" : ""}` : `${m} мин`;
+function renderTimerPick(){
+  $("tm-k").innerHTML = Object.entries(TK).map(([k, x]) => `<button class="chip" data-k="${k}" aria-pressed="${k === tmK}">${x.n}</button>`).join("");
+  $("tm-d").innerHTML = TK[tmK].p.map(m => `<button class="chip" data-m="${m}" aria-pressed="${m === tmM && !$("tm-m").value}">${tmK === "react" ? (m === 53 ? "53 мин (II)" : "60 мин (I)") : fmtMin(m)}</button>`).join("");
+}
+function renderTimers(){
+  const now = Date.now() + tmSkew;
+  $("tm-list").innerHTML = tmList.length ? `<div class="res" style="margin-top:6px">` + tmList.map(t => {
+    const left = Math.max(0, Math.round((t.end - now) / 60e3));
+    return `<span>${TK[t.k] ? TK[t.k].n : t.k}</span><b>${left > 0 ? "через " + fmtMin(left) : "готово ✅"} <button class="chip" data-del="${t.end}" style="padding:2px 9px;margin-left:6px">✕</button></b>`;
+  }).join("") + `</div>` : `<p class="note">Активных таймеров нет.</p>`;
+}
+async function timersApi(body){
+  const d = await (await fetch(WORKER + "/timers", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({initData: tg.initData, ...body})})).json();
+  if (d.tm) { tmList = d.tm; tmSkew = d.now ? d.now - Date.now() : 0; renderTimers(); }
+  return d;
+}
+async function loadTimers(){
+  renderTimerPick();
+  if (!inTg) { $("tm-msg").innerHTML = `Таймеры работают в Telegram: открой справочник из бота <a href="https://t.me/${BOT}">@${BOT}</a>.`; $("tm-go").disabled = true; renderTimers(); return; }
+  try { await timersApi({op: "list"}); } catch (e) { $("tm-msg").textContent = "Нет связи с ботом — попробуй позже."; }
+}
+$("tm-k").addEventListener("click", e => { const b = e.target.closest("[data-k]"); if (!b) return; tmK = b.dataset.k; tmM = TK[tmK].p[Math.min(1, TK[tmK].p.length - 1)]; $("tm-m").value = ""; haptic(); renderTimerPick(); });
+$("tm-d").addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (!b) return; tmM = +b.dataset.m; $("tm-m").value = ""; haptic(); renderTimerPick(); });
+$("tm-m").addEventListener("input", renderTimerPick);
+$("tm-go").addEventListener("click", async () => {
+  const m = Math.round(+$("tm-m").value || tmM);
+  if (!(m >= 1 && m <= 720)) { $("tm-msg").textContent = "Время — от 1 минуты до 12 часов."; return; }
+  $("tm-go").disabled = true; $("tm-msg").textContent = "Запускаю…";
+  try {
+    const d = await timersApi({op: "add", k: tmK, m});
+    $("tm-msg").textContent = d.ok ? `✅ ${TK[tmK].n}: таймер на ${fmtMin(m)}. Бот напишет, когда будет готово.` : (d.error || "Не получилось.");
+    haptic(d.ok ? "success" : "error");
+  } catch (e) { $("tm-msg").textContent = "Нет связи с ботом — попробуй позже."; }
+  $("tm-go").disabled = false;
+});
+$("tm-list").addEventListener("click", async e => { const b = e.target.closest("[data-del]"); if (!b) return; haptic(); try { await timersApi({op: "del", end: b.dataset.del}); } catch (x) {} });
+setInterval(() => { if (cur === "timer") renderTimers(); }, 30000);
+
+/* ---------- Доход плантации ---------- */
+function grow(){
+  const bag = +$("g-r").value, t = +$("g-t").value, bushes = t * 6;
+  const min = bushes * 2 * bag, avg = bushes * 3 * bag, max = bushes * 4 * bag, setup = 280000 + 40000 * t;
+  $("g-res").innerHTML = `<span>Кустов</span><b>${bushes}</b><span>Пакет у скупщика</span><b>${money(bag)}</b><span>За один сбор</span><b>${money(min)} – ${money(max)}</b>` +
+    `<span>В среднем за сбор</span><b class="hi">${money(avg)}</b><span>Вложения (комната + столы)</span><b>${money(setup)}</b>` +
+    `<span>Окупится за</span><b>≈${Math.ceil(setup / avg)} ${Math.ceil(setup / avg) === 1 ? "сбор" : Math.ceil(setup / avg) < 5 ? "сбора" : "сборов"}</b>`;
+}
+["g-r", "g-t"].forEach(id => $(id).addEventListener("input", grow));
+grow();
+
 /* ---------- Навигация ---------- */
 let cur = "guide";
 function show(v){
   cur = v;
-  ["guide", "map", "items", "wipe", "calc", "info"].forEach(x => $("v-" + x).hidden = x !== v);
+  ["guide", "map", "items", "wipe", "calc", "timer", "info"].forEach(x => $("v-" + x).hidden = x !== v);
+  if (v === "timer") loadTimers();
   document.querySelectorAll("nav.bar button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   if (v === "info") markNewsSeen();
   window.scrollTo(0, 0); haptic();
@@ -1206,7 +1287,7 @@ $("fb-send").addEventListener("click", async () => {
 renderGuide(); renderWipe(); renderSrvList(); loadKefir(); $("wipe-vid").innerHTML = videosFor("wipe"); loadSrv(); renderMap(); renderDesert(); renderItems(); calc(); decoders(); fillPlanner(); loadPins(); loadPrices(); renderNews();
 setInterval(renderWipe, 30e3);
 const startTab = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("tab");
-if (["map", "items", "wipe", "calc", "info"].includes(startTab)) show(startTab);
+if (["map", "items", "wipe", "calc", "timer", "info"].includes(startTab)) show(startTab);
 if (location.hash === "#desert") document.querySelector('#map-tabs [data-m="desert"]').click();
 if (inTg) fetch(WORKER + "/hello", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({initData: tg.initData})}).catch(() => {});
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(() => {});
