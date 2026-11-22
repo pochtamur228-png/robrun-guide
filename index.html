@@ -108,6 +108,13 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 .mapbox svg{display:block;width:100%;height:auto}
 [hidden]{display:none!important}
 .rmap{height:min(68vh,560px);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+.cat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px}
+.citem{border:1px solid var(--line);border-bottom:3px solid var(--rc);border-radius:12px;padding:8px 6px;background:var(--bg2);display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:12px;cursor:pointer;color:inherit}
+.citem img{width:58px;height:58px;object-fit:contain}.citem b{font-size:12.5px;line-height:1.2}.citem span{color:var(--muted)}
+.dhead{display:flex;gap:12px;align-items:center}.dhead img{width:96px;height:96px;object-fit:contain;border-radius:12px;background:var(--bg2);border:2px solid var(--rc)}
+.bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--lime)}
+.vgrid{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}
+.tipimg{display:flex;gap:6px;overflow-x:auto;margin:6px 0}.tipimg img{height:150px;border-radius:10px;flex:none}
 #rm-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #rm-img{display:block;width:100%;height:100%;pointer-events:none}
 #rm-pts{position:absolute;inset:0}
@@ -166,9 +173,21 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 
   <!-- ===== ВЕЩИ ===== -->
   <section id="v-items" hidden>
-    <div class="chips" id="it-chips"></div>
+    <div class="chips" id="it-mode"><button class="chip" data-mode="all" aria-pressed="true">📦 Все предметы · 538</button><button class="chip" data-mode="veh" aria-pressed="false">🚗 Транспорт · 11</button><button class="chip" data-mode="stats" aria-pressed="false">📊 Оружие: урон и магазин</button></div>
+    <div id="cat-box" style="margin-top:10px">
+      <input type="search" id="cat-q" placeholder="Поиск: RC 5.56, сейф, ключ-карта…" autocomplete="off" style="width:100%">
+      <div class="chips" id="cat-c" style="margin-top:8px"></div>
+      <div class="chips" id="cat-s" style="margin-top:6px"></div>
+      <div class="cat-grid" id="cat-grid"></div>
+      <button class="btn ghost" id="cat-more" hidden style="width:100%;margin-top:8px">Показать ещё</button>
+      <p class="note">Данные о предметах и иконки — robrun.pro (по их словам — из файлов игры). «Цена» — базовая цена в игре: у скупщика её поднимает известность.</p>
+    </div>
+    <div id="veh-box" hidden style="margin-top:10px"></div>
+    <div id="stats-box" hidden>
+    <div class="chips" id="it-chips" style="margin-top:10px"></div>
     <div class="list" id="it-list" style="margin-top:10px"></div>
     <p class="note">Цифры — из фан-баз и игрового файла, могут отличаться на твоём сервере и меняться с патчами. Как выглядит предмет — в <a href="https://metaforge.app/rob-run/database" target="_blank" rel="noopener">фан-базе MetaForge</a> (там есть картинки).</p>
+    </div>
   </section>
 
   <!-- ===== ВАЙП ===== -->
@@ -207,7 +226,8 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 
   <!-- ===== КАРТА ===== -->
   <section id="v-map" hidden>
-    <div class="chips" id="map-tabs"><button class="chip" data-m="r:city" aria-pressed="true">🏙 Looty Bay</button><button class="chip" data-m="r:state" aria-pressed="false">🏜 Штат</button><button class="chip" data-m="r:motel" aria-pressed="false">🏨 Мотель Ленни</button><button class="chip" data-m="r:sales" aria-pressed="false">🏪 Центр сбыта</button><button class="chip" data-m="r:prison" aria-pressed="false">⛓ Тюрьма</button><button class="chip" data-m="city" aria-pressed="false">📍 Метки игроков</button></div>
+    <div class="chips" id="map-tabs"><button class="chip" data-m="r:city" aria-pressed="true">🏙 Looty Bay</button><button class="chip" data-m="r:state" aria-pressed="false">🏜 Штат</button><button class="chip" data-m="r:motel" aria-pressed="false">🏨 Мотель Ленни</button><button class="chip" data-m="r:sales" aria-pressed="false">🏪 Центр сбыта</button><button class="chip" data-m="r:prison" aria-pressed="false">⛓ Тюрьма</button><button class="chip" data-m="loc" aria-pressed="false">🏢 Локации · 29</button><button class="chip" data-m="city" aria-pressed="false">📍 Метки игроков</button></div>
+    <div class="list" id="loc-list" hidden></div>
     <div class="mapbox rmap" id="mb-real"><div id="rm-stage"><img id="rm-img" alt="" draggable="false"><div id="rm-pts"></div></div><div class="rm-z"><button data-z="1" aria-label="Приблизить">＋</button><button data-z="-1" aria-label="Отдалить">−</button><button data-z="0" aria-label="Сбросить">⟲</button></div></div>
     <div class="chips" id="rm-f"></div>
     <div class="mapbox" id="mb-city" hidden>
@@ -399,6 +419,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
   </section>
 </div>
 
+<div class="overlay" id="cat-d" hidden><div class="wrap" id="cat-dw"></div></div>
 <div class="overlay" id="sr" hidden>
   <div class="wrap">
     <div class="row"><input type="text" id="sr-q" placeholder="Поиск: взятка, банк, рейд, дрель…" autocomplete="off" style="flex:1"><button class="icon-btn" id="sr-close" aria-label="Закрыть">✕</button></div>
@@ -735,6 +756,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:21, t:"22.11.2026", items:["Вещи: каталог всех 538 предметов с иконками — цена, редкость, размер, где найти, поиск и фильтры; из карточки — сразу в планировщик прокачки.", "Вещи → Транспорт: все 11 машин — скорость, разгон, управление, багажник, грузы, цены.", "Гайд → «🎮 Из игры»: 39 тем из внутриигрового справочника с картинками.", "Карта → «🏢 Локации»: список всех мест с фото и лутом, нажатие показывает место на карте."]},
   {v:20, t:"22.11.2026", items:["Настоящие карты: Looty Bay, Штат, Мотель Ленни, Центр сбыта и Тюрьма — с приближением пальцами.", "Больше 1000 меток: скупщики, контрабандисты, банкоматы, парковки, сейфы, груз, кассы, двери под ключ-карту, камеры, лут — слои включаются кнопками.", "Нажми на здание — фото и что там можно найти. Старая схема с метками игроков — вкладка «Метки игроков»."]},
   {v:19, t:"22.11.2026", items:["Планировщик прокачки: иконки всех предметов — у цели, в цепочке и в таблице ветки."]},
   {v:18, t:"22.11.2026", items:["Калькулятор плантации по механике игры: цикл куста 60 мин для любой редкости, улучшения на каждом столе (вентилятор +12%, насос +14%, УФ-лампа +24%, все три — 40 мин), частота сбора, бонус известности, «уже куплено».", "Таймер кустов: 60 / 53 / 48 / 40 мин по улучшениям.", "Планировщик прокачки: все 171 поставка в 8 ветках — цепочка, цена на ноутбуке, уровень района, срок, вся ветка таблицей."]},
@@ -811,7 +833,8 @@ $("g-list").addEventListener("click", e => {
 /* ---------- Гайд ---------- */
 let gCur = load("gCur", "start");
 function renderGuide(){
-  $("g-chips").innerHTML = GUIDE.map(s => `<button class="chip" data-s="${s.id}" aria-pressed="${s.id === gCur}">${s.t}</button>`).join("");
+  $("g-chips").innerHTML = `<button class="chip" data-s="game" aria-pressed="${gCur === "game"}">🎮 Из игры · 39</button>` + GUIDE.map(s => `<button class="chip" data-s="${s.id}" aria-pressed="${s.id === gCur}">${s.t}</button>`).join("");
+  if (gCur === "game") { renderGameTips(); return; }
   const s = GUIDE.find(x => x.id === gCur) || GUIDE[0];
   let html = "";
   if (s.roles) html += `<div class="roles">
@@ -991,7 +1014,7 @@ let RM = null, rmCur = null, rmS = 1, rmTx = 0, rmTy = 0, rmFit = 1, rmSel = -1;
 async function openReal(id){
   if (!RM) { $("map-info").innerHTML = `<p class="note">Загружаю карту…</p>`; try { RM = await (await fetch("assets/maps/points.json")).json(); } catch (e) { $("map-info").innerHTML = `<p class="note">Не удалось загрузить карту — нет связи.</p>`; return; } }
   rmCur = RM.maps.find(m => m.id === id) || RM.maps[0]; rmSel = -1; save("rmMap", rmCur.id);
-  mapMode = "real"; ["mb-city", "mb-desert", "pin-bar", "pin-form", "map-legend", "map-src"].forEach(k => $(k).hidden = true); $("mb-real").hidden = false; $("rm-f").hidden = false;
+  mapMode = "real"; ["mb-city", "mb-desert", "pin-bar", "pin-form", "map-legend", "map-src", "loc-list"].forEach(k => $(k).hidden = true); $("mb-real").hidden = false; $("rm-f").hidden = false;
   document.querySelectorAll("#map-tabs .chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.m === "r:" + rmCur.id));
   $("rm-img").src = `assets/maps/${rmCur.id}.webp`; $("mb-real").style.background = rmCur.bg;
   rmLayout(true); rmFilters(); rmDraw();
@@ -1070,6 +1093,8 @@ function rmInfo(i){
 })();
 $("map-tabs").addEventListener("click", e => {
   const b = e.target.closest("[data-m]"); if (!b) return;
+  if (b.dataset.m === "loc") { document.querySelectorAll("#map-tabs .chip").forEach(c => c.setAttribute("aria-pressed", c === b)); mapMode = "loc"; renderLocList(); haptic(); return; }
+  $("loc-list").hidden = true;
   if (b.dataset.m.startsWith("r:")) {
     document.querySelectorAll("#map-tabs .chip").forEach(c => c.setAttribute("aria-pressed", c === b));
     mapMode = "real"; $("mb-real").hidden = false; $("rm-f").hidden = false; $("mb-city").hidden = true; $("mb-desert").hidden = true; $("map-legend").hidden = true; $("map-src").hidden = true;
@@ -1160,6 +1185,118 @@ function renderItems(){
     (["pistol", "shotgun", "smg", "rifle"].includes(c.id) ? `<div class="card"><p class="sub">Mk2 и Mk3 обычно увеличивают <b>магазин</b>, а не урон: урон и темп у версий одинаковые. Оружие теряется при смерти преступником — на вылазку бери то, что не жалко.</p></div>` : "");
 }
 $("it-chips").addEventListener("click", e => { const b = e.target.closest("[data-it]"); if (!b) return; itCur = b.dataset.it; save("itCur", itCur); haptic(); renderItems(); });
+
+
+/* ---------- Каталог предметов (538) + транспорт ---------- */
+const RAR = {"#9a9894": "Обычный", "#77736d": "Обычный", "#67f835": "Необычный", "#00a6ec": "Редкий", "#e375ff": "Эпический", "#ffd500": "Легендарный", "#e83030": "Уникальный", "#fe1e7c": "Особый"};
+let CAT = null, catC = load("catC", "all"), catR = "", catLim = 60, itMode = load("itMode", "all");
+const icoUrl = i => `assets/icons/${encodeURIComponent(i)}.webp`;
+async function loadCat(){
+  if (CAT) return CAT;
+  try { CAT = await (await fetch("assets/data/items.json")).json(); } catch (e) { $("cat-grid").innerHTML = `<p class="note">Не удалось загрузить каталог — нет связи.</p>`; return null; }
+  return CAT;
+}
+function catFilter(){
+  const q = norm($("cat-q").value.trim());
+  return CAT.items.filter(x => (catC === "all" || x[1] === catC) && (!catR || x[6] === catR) && (!q || norm(x[2] + " " + x[4] + " " + x[7]).includes(q)));
+}
+async function renderCat(){
+  if (!(await loadCat())) return;
+  const cnt = {}; CAT.items.forEach(x => cnt[x[1]] = (cnt[x[1]] || 0) + 1);
+  $("cat-c").innerHTML = `<button class="chip" data-c="all" aria-pressed="${catC === "all"}">Все · ${CAT.items.length}</button>` +
+    Object.entries(CAT.cats).map(([k, n]) => `<button class="chip" data-c="${k}" aria-pressed="${catC === k}">${n} · ${cnt[k] || 0}</button>`).join("");
+  $("cat-s").innerHTML = ["", "#67f835", "#00a6ec", "#e375ff", "#ffd500", "#e83030"].map(c => `<button class="chip" data-r="${c}" aria-pressed="${catR === c}" style="padding:4px 10px">${c ? `<span style="color:${c}">●</span> ${RAR[c]}` : "Любая редкость"}</button>`).join("");
+  const list = catFilter();
+  $("cat-grid").innerHTML = list.slice(0, catLim).map(x => `<button class="citem" data-id="${x[0]}" style="--rc:${x[6]}">${x[3] ? `<img src="${icoUrl(x[3])}" alt="" loading="lazy">` : "📦"}<b>${x[2]}</b><span>${x[8] ? money(x[8]) : "—"}</span></button>`).join("") ||
+    `<p class="note" style="grid-column:1/-1">Ничего не нашлось.</p>`;
+  $("cat-more").hidden = list.length <= catLim; $("cat-more").textContent = `Показать ещё (${list.length - catLim})`;
+}
+function catDetail(id){
+  const x = CAT.items.find(i => i[0] === id); if (!x) return;
+  const [ , c, n, ic, sub, r, col, d, pr, sz, where, buy] = x;
+  const ti = TREE.findIndex(t => t[7] === ic || t[1] === n);
+  let research = "";
+  if (ti >= 0) { const path = []; for (let j = ti; j >= 0; j = TREE[j][2]) path.unshift(TREE[j]); const t = TREE[ti];
+    research = `<span>Исследование у Ленни</span><b>${money(path.reduce((a, q) => a + q[4], 0))} (${path.length} шаг.)</b>` + (t[3] ? `<span>Продаётся</span><b>с района ${t[3]}-го уровня</b>` : "") + (Math.max(0, ...path.map(q => q[6])) ? `<span>Нужен срок</span><b>${Math.max(...path.map(q => q[6]))} лет</b>` : ""); }
+  $("cat-dw").innerHTML = `<div class="row" style="justify-content:space-between"><span class="sub">${CAT.cats[c] || ""}</span><button class="icon-btn" id="cat-x" aria-label="Закрыть">✕</button></div>
+    <div class="dhead" style="--rc:${col}">${ic ? `<img src="${icoUrl(ic)}" alt="">` : ""}<div><h3 style="margin:0">${n}</h3><span style="color:${col}">● ${RAR[col] || ""}</span>${sub ? ` <span class="tag">${sub}</span>` : ""}</div></div>
+    ${d ? `<p>${d}</p>` : ""}
+    <div class="res">${pr ? `<span>Цена</span><b class="hi">${money(pr)}</b>` : ""}${sz ? `<span>Размер в инвентаре</span><b>${sz[0]}×${sz[1]} клеток</b>` : ""}
+      ${pr && sz ? `<span>Цена за клетку</span><b>${money(pr / (sz[0] * sz[1]))}</b>` : ""}<span>Покупается на ноутбуке</span><b>${buy ? "да" : "нет"}</b>${research}</div>
+    ${where.length ? `<p class="sub" style="margin-top:8px"><b>Где найти:</b> ${where.join(", ")}</p>` : ""}
+    ${ti >= 0 ? `<button class="btn ghost" id="cat-plan" data-ti="${ti}" style="width:100%;margin-top:8px">🌳 Открыть в планировщике прокачки</button>` : ""}`;
+  $("cat-d").hidden = false; haptic();
+}
+$("cat-c").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (!b) return; catC = b.dataset.c; catLim = 60; save("catC", catC); haptic(); renderCat(); });
+$("cat-s").addEventListener("click", e => { const b = e.target.closest("[data-r]"); if (!b) return; catR = b.dataset.r; catLim = 60; haptic(); renderCat(); });
+$("cat-q").addEventListener("input", () => { catLim = 60; renderCat(); });
+$("cat-more").addEventListener("click", () => { catLim += 90; renderCat(); });
+$("cat-grid").addEventListener("click", e => { const b = e.target.closest("[data-id]"); if (b) catDetail(b.dataset.id); });
+$("cat-d").addEventListener("click", e => {
+  if (e.target.id === "cat-x" || e.target === $("cat-d")) { $("cat-d").hidden = true; return; }
+  const b = e.target.closest("#cat-plan"); if (!b) return;
+  const t = TREE[+b.dataset.ti]; $("cat-d").hidden = true; show("calc");
+  $("r-c").value = t[0]; save("rBr", t[0]); fillTargets(); $("r-t").value = b.dataset.ti; save("rT" + t[0], +b.dataset.ti); plan();
+  setTimeout(() => $("r-c").scrollIntoView({behavior: "smooth", block: "center"}), 50);
+});
+// [название, иконка, тип, скорость, разгон, управляемость, багажник, грузы, мест, купить, продать, открыть у Ленни, уровень, заметка]
+const VEH = [
+  ["Buletti Soltempra", "buletti_soltempra", "Гражданская", 90, 95, 40, "12 → 30", "0 — груз не возит", 2, 1e7, 4e6, 2e6, "III", ""],
+  ["Longhorn Wild", "longhorn_wild", "Гражданская", 75, 90, 20, "18 → 36", "1 → 3", 4, 4.5e6, 1.8e6, 5e5, "III", ""],
+  ["Royal J", "royal_j", "Гражданская", 65, 85, 60, "36 → 90", "4 → 8", 4, 4e6, 1.6e6, 5e5, "III", ""],
+  ["Royal E", "royal_e", "Гражданская", 62, 70, 50, "18 → 36", "2 → 4", 4, 1e6, 4e5, 2e5, "II", ""],
+  ["Longhorn Titan", "longhorn_titan", "Гражданская", 55, 45, 60, "36 → 72", "6 → 8", 4, 9e5, 3.6e5, 2e5, "II", ""],
+  ["Fukurou Tensa", "fukurou_tensa", "Гражданская", 30, 40, 30, "12 → 30", "1 → 3", 4, 2e5, 8e4, 5e4, "I", ""],
+  ["Longhorn Van", "longhorn_van", "Гражданская", 30, 20, 30, "48 → 84", "6 → 12", 4, 1.8e5, 7.2e4, 5e4, "I", "Лучший выбор для грузов за свои деньги."],
+  ["Fukurou Spark", "", "Аренда", 25, 30, 10, "12", "1", 4, 0, 0, 0, "", "Берётся в паркомате или шкафчике для ключей. Отзывается, как только появится своя машина, — всё из багажника выпадет на землю. Улучшения не ставятся."],
+  ["Полиция: Longhorn Wild", "longhorn_wild", "Полиция", 80, 90, 20, "42", "12", 4, 4.5e6, 1.8e6, 5e5, "III", "Улучшения багажника не ставятся."],
+  ["Полиция: Longhorn Outrider", "", "Полиция, служебная", 50, 60, 50, "42", "12", 4, 0, 0, 0, "", "Выдаётся на смене полицейского. Таранит и замедляет машины преступников."],
+  ["Полицейская машина", "", "Полиция, служебная", 35, 40, 40, "42", "12", 4, 0, 0, 0, "", "Выдаётся на смене полицейского."]];
+function renderVeh(){
+  const bar = (l, v) => `<span class="sub">${l}</span><div class="bar"><i style="width:${v}%"></i></div><b>${v}</b>`;
+  $("veh-box").innerHTML = VEH.map(v => `<div class="card"><div class="dhead" style="--rc:var(--line)">${v[1] ? `<img src="${icoUrl(v[1])}" alt="" style="width:80px;height:80px">` : `<span style="font-size:42px">🚓</span>`}<div><h3 style="margin:0">${v[0]}</h3><span class="sub">${v[2]}${v[12] ? ` · поселение ур. ${v[12]}+` : ""}</span></div></div>
+    <div class="vgrid" style="margin-top:6px">${bar("Скорость", v[3])}${bar("Разгон", v[4])}${bar("Управление", v[5])}</div>
+    <div class="res" style="margin-top:6px"><span>🎒 Багажник, ячеек</span><b>${v[6]}</b><span>📦 Грузы, мест</span><b>${v[7]}</b><span>Мест в салоне</span><b>${v[8]}</b>
+    ${v[9] ? `<span>Купить</span><b class="hi">${money(v[9])}</b><span>Продать</span><b>${money(v[10])}</b><span>Открыть у Ленни</span><b>${money(v[11])}</b>` : `<span>Купить</span><b>нельзя</b>`}</div>
+    ${v[13] ? `<p class="note">${v[13]}</p>` : ""}</div>`).join("") +
+    `<div class="card"><h3>🔧 Тюнинг и багажник</h3><p class="sub">Первое число багажника и грузов — без улучшений, второе — с лучшими багажными сумками и каркасами во всех слотах. Одна строка багажника = 6 ячеек.</p>
+    <p class="sub">🏁 Скорость — блок управления (ECU), 3 уровня. 🚀 Разгон — турбокомплект и интеркулер, по 2 уровня. 🛞 Управление — тормозной диск и рулевая рейка, по 2 уровня. 🎒 Вместимость — багажные сумки (3 ур.) и багажный каркас (2 ур.). Детали ставятся в гараже на автоподъёмнике и не выпадают при смерти. Цены деталей — в «Счёт» → планировщик, ветка «Машины и тюнинг».</p>
+    <p class="note">Характеристики — robrun.pro (по данным сообщества, разобравшего файлы игры).</p></div>`;
+}
+function itShow(m){
+  itMode = m; save("itMode", m);
+  document.querySelectorAll("#it-mode .chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.mode === m));
+  $("cat-box").hidden = m !== "all"; $("veh-box").hidden = m !== "veh"; $("stats-box").hidden = m !== "stats";
+  if (m === "all") renderCat(); if (m === "veh") renderVeh(); if (m === "stats") renderItems();
+}
+$("it-mode").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if (b) { haptic(); itShow(b.dataset.mode); } });
+
+/* ---------- Советы из игры (внутриигровой справочник) ---------- */
+let TIPS = null;
+async function renderGameTips(){
+  if (!TIPS) { $("g-list").innerHTML = `<p class="note">Загружаю…</p>`; try { TIPS = (await (await fetch("assets/data/tips.json")).json()).tips; } catch (e) { $("g-list").innerHTML = `<p class="note">Не удалось загрузить — нет связи.</p>`; return; } }
+  const groups = [...new Set(TIPS.map(t => t.g))];
+  $("g-list").innerHTML = `<p class="sub">Тексты и картинки из обучения в самой игре (внутриигровой справочник Kefir) — 39 тем.</p>` + groups.map(g => `<h3 style="margin:14px 0 6px">${g}</h3>` +
+    TIPS.filter(t => t.g === g).map(t => `<details class="card"><summary style="cursor:pointer;font-weight:700">${t.t}</summary>
+      ${t.img.length ? `<div class="tipimg">${t.img.map(i => `<img src="assets/tips/${i}.webp" alt="" loading="lazy">`).join("")}</div>` : ""}
+      <p>${t.x}</p>${t.tips.length ? `<ul>${t.tips.map(x => `<li>💡 ${x}</li>`).join("")}</ul>` : ""}</details>`).join("")).join("") +
+    `<p class="note">Собрано по материалам robrun.pro.</p>`;
+}
+
+/* ---------- Список локаций на карте ---------- */
+async function renderLocList(){
+  if (!RM) { try { RM = await (await fetch("assets/maps/points.json")).json(); } catch (e) { return; } }
+  const city = RM.maps.find(m => m.id === "city"), byLoc = {}; city.pts.forEach((q, i) => { if (q[4] && RM.locs[q[4]]) byLoc[q[4]] = i; });
+  ["mb-real", "rm-f", "mb-city", "mb-desert", "pin-bar", "pin-form", "map-legend", "map-src"].forEach(k => $(k).hidden = true);
+  $("loc-list").hidden = false;
+  $("loc-list").innerHTML = Object.entries(RM.locs).filter(([id]) => byLoc[id] != null).sort((a, b) => a[1].n.localeCompare(b[1].n, "ru")).map(([id, L]) =>
+    `<button class="card" data-loc="${id}" style="flex-direction:row;align-items:center;gap:10px;text-align:left;color:inherit;width:100%">${L.img ? `<img src="assets/loc/${L.img}.webp" alt="" loading="lazy" style="width:88px;height:60px;object-fit:cover;border-radius:8px;flex:none">` : ""}
+      <span><b>${L.n}</b><br><span class="sub">${[L.size, L.d].filter(Boolean).join(" · ")}</span><br><span class="note">${L.loot.slice(0, 3).map(t => t[2]).join(", ")}</span></span></button>`).join("");
+  $("map-info").innerHTML = `<h3>🏢 Локации Looty Bay</h3><p class="sub">Нажми на локацию — покажу её на карте, фото и что там можно найти.</p>`;
+  $("loc-list").onclick = e => { const b = e.target.closest("[data-loc]"); if (!b) return; const i = byLoc[b.dataset.loc];
+    $("loc-list").hidden = true; document.querySelector('#map-tabs [data-m="r:city"]').click();
+    setTimeout(() => { rmS = 4; const q = rmCur.pts[i], box = $("mb-real"); rmTx = box.clientWidth / 2 - rmCur.w * rmFit * q[0] / 100 * rmS; rmTy = box.clientHeight / 2 - rmCur.h * rmFit * q[1] / 100 * rmS; rmApply(); rmInfo(i); $("mb-real").scrollIntoView({behavior: "smooth", block: "start"}); }, 400); };
+}
 
 /* ---------- Дешифраторы и планировщик прокачки ---------- */
 function decoders(){
@@ -1426,6 +1563,7 @@ function show(v){
   cur = v;
   ["guide", "map", "items", "wipe", "calc", "timer", "info"].forEach(x => $("v-" + x).hidden = x !== v);
   if (v === "timer") loadTimers();
+  if (v === "items") itShow(itMode);
   if (v === "map" && !rmCur) openReal(load("rmMap", "city"));
   document.querySelectorAll("nav.bar button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   if (v === "info") markNewsSeen();
