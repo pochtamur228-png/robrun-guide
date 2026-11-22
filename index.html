@@ -106,6 +106,19 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 .srv[aria-selected="true"]{border-color:var(--lime);background:rgba(198,239,58,.12)}
 .mapbox{position:relative;border-radius:14px;overflow:hidden;border:1px solid var(--line);background:#2a8ea3}
 .mapbox svg{display:block;width:100%;height:auto}
+[hidden]{display:none!important}
+.rmap{height:min(68vh,560px);touch-action:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#rm-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+#rm-img{display:block;width:100%;height:100%;pointer-events:none}
+#rm-pts{position:absolute;inset:0}
+.rpt{position:absolute;transform:translate(-50%,-50%) scale(var(--inv,1));border:0;padding:0;background:none;cursor:pointer;line-height:1}
+.rpt.big{width:22px;height:22px;border-radius:50%;background:rgba(10,16,26,.82);border:2px solid var(--c);font-size:12px;display:grid;place-items:center}
+.rpt.dot{width:9px;height:9px;border-radius:50%;background:var(--c);border:1.5px solid rgba(0,0,0,.6)}
+.rpt.lbl{font:800 13px/1 var(--font-head,inherit);color:#fff;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap;background:none}
+.rpt.sel{outline:3px solid #fff;outline-offset:2px}
+.rm-z{position:absolute;right:8px;top:8px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.rm-z button{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:rgba(10,16,26,.85);color:#fff;font-size:20px;cursor:pointer}
+.lootrow{display:flex;align-items:center;gap:8px;font-size:13.5px}.lootrow img{width:34px;height:34px;object-fit:contain}
 .mk{cursor:pointer}.mk circle{stroke:#081019;stroke-width:2}.mk text{font:700 13px var(--font);fill:#081019;text-anchor:middle;dominant-baseline:central;pointer-events:none}
 .mk.on circle{stroke:#fff;stroke-width:3}
 #dmap text{text-anchor:middle;dominant-baseline:central}
@@ -194,8 +207,10 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 
   <!-- ===== КАРТА ===== -->
   <section id="v-map" hidden>
-    <div class="chips" id="map-tabs"><button class="chip" data-m="city" aria-pressed="true">🏙 Looty Bay</button><button class="chip" data-m="desert" aria-pressed="false">🌍 Вся карта</button></div>
-    <div class="mapbox" id="mb-city">
+    <div class="chips" id="map-tabs"><button class="chip" data-m="r:city" aria-pressed="true">🏙 Looty Bay</button><button class="chip" data-m="r:state" aria-pressed="false">🏜 Штат</button><button class="chip" data-m="r:motel" aria-pressed="false">🏨 Мотель Ленни</button><button class="chip" data-m="r:sales" aria-pressed="false">🏪 Центр сбыта</button><button class="chip" data-m="r:prison" aria-pressed="false">⛓ Тюрьма</button><button class="chip" data-m="city" aria-pressed="false">📍 Метки игроков</button></div>
+    <div class="mapbox rmap" id="mb-real"><div id="rm-stage"><img id="rm-img" alt="" draggable="false"><div id="rm-pts"></div></div><div class="rm-z"><button data-z="1" aria-label="Приблизить">＋</button><button data-z="-1" aria-label="Отдалить">−</button><button data-z="0" aria-label="Сбросить">⟲</button></div></div>
+    <div class="chips" id="rm-f"></div>
+    <div class="mapbox" id="mb-city" hidden>
       <svg id="map" viewBox="0 0 1000 420" role="img" aria-label="Схема Looty Bay">
         <defs><pattern id="wv" width="24" height="24" patternUnits="userSpaceOnUse" patternTransform="rotate(-35)"><rect width="24" height="24" fill="#2a8ea3"/><rect width="24" height="6" fill="#2f97ab"/></pattern></defs>
         <rect width="1000" height="420" fill="url(#wv)"/>
@@ -219,7 +234,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
         <g id="map-user"></g>
       </svg>
     </div>
-    <div class="row" id="pin-bar"><button class="btn ghost" id="pin-add" style="flex:1">📍 Поставить метку</button><span class="note" id="pin-n"></span></div>
+    <div class="row" id="pin-bar" hidden><button class="btn ghost" id="pin-add" style="flex:1">📍 Поставить метку</button><span class="note" id="pin-n"></span></div>
     <div class="card" id="pin-form" hidden>
       <h3>📍 Новая метка</h3>
       <p class="sub" id="pin-hint">Нажми на схеме место, где метка.</p>
@@ -245,8 +260,8 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
         <g id="dmap-x"></g>
       </svg>
     </div>
-    <p class="note">Схема нарисована по <a href="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4262460/7197f6af9de1f0a0c5bf5d31b807957131782a2a/ss_7197f6af9de1f0a0c5bf5d31b807957131782a2a.1920x1080.jpg" target="_blank" rel="noopener">официальному скриншоту глобальной карты</a> со страницы игры в Steam (до релиза; в игре может отличаться).</p>
-    <div class="legend" id="map-legend"></div>
+    <p class="note" id="map-src" hidden>Схема нарисована по <a href="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4262460/7197f6af9de1f0a0c5bf5d31b807957131782a2a/ss_7197f6af9de1f0a0c5bf5d31b807957131782a2a.1920x1080.jpg" target="_blank" rel="noopener">официальному скриншоту глобальной карты</a> со страницы игры в Steam (до релиза; в игре может отличаться).</p>
+    <div class="legend" id="map-legend" hidden></div>
     <div class="card" id="map-info"><h3>🗺 Карта</h3><p class="sub">Нажми на значок на схеме. Схема упрощённая: точные места смотри на карте в игре (там есть поиск предметов по названию и слои).</p></div>
     <div class="card"><h3>📍 Отдельные карты в игре</h3><ul>
       <li><b>Мотель Ленни</b> — стартовая точка, хранение кэша, отмывка за процент, Подозрительная дверь (бартер).</li>
@@ -720,6 +735,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:20, t:"22.11.2026", items:["Настоящие карты: Looty Bay, Штат, Мотель Ленни, Центр сбыта и Тюрьма — с приближением пальцами.", "Больше 1000 меток: скупщики, контрабандисты, банкоматы, парковки, сейфы, груз, кассы, двери под ключ-карту, камеры, лут — слои включаются кнопками.", "Нажми на здание — фото и что там можно найти. Старая схема с метками игроков — вкладка «Метки игроков»."]},
   {v:19, t:"22.11.2026", items:["Планировщик прокачки: иконки всех предметов — у цели, в цепочке и в таблице ветки."]},
   {v:18, t:"22.11.2026", items:["Калькулятор плантации по механике игры: цикл куста 60 мин для любой редкости, улучшения на каждом столе (вентилятор +12%, насос +14%, УФ-лампа +24%, все три — 40 мин), частота сбора, бонус известности, «уже куплено».", "Таймер кустов: 60 / 53 / 48 / 40 мин по улучшениям.", "Планировщик прокачки: все 171 поставка в 8 ветках — цепочка, цена на ноутбуке, уровень района, срок, вся ветка таблицей."]},
   {v:17, t:"22.11.2026", items:["Плантация: у каждого стола свой набор кустов (например стол 1 — 1+4+1, стол 2 — весь зелёный), до 12 столов в двух комнатах. Столы запоминаются."]},
@@ -958,12 +974,113 @@ function legend(){
   $("map-legend").innerHTML = mapMode === "city" ? Object.values(MK).map(m => `<span><i style="background:${m.c}"></i>${m.n}</span>`).join("") + `<span><i style="background:#fff;border-radius:2px;transform:rotate(45deg)"></i>метки игроков</span>`
     : [1, 2, 3].map(l => `<span><i style="background:${LVLC[l]}"></i>Район ${l}-го уровня</span>`).join("") + `<span><i style="background:#c6ef3a"></i>Looty Bay</span>`;
 }
+
+/* ---------- Настоящие карты (картинки и метки: robrun.pro, по их словам — из файлов игры) ---------- */
+const RC = {fence: ["💰", "Скупщик", "#c6ef3a"], smuggler: ["🚚", "Контрабандист", "#4fd1c5"], atm: ["🏧", "Банкомат", "#9ad0ff"], banker: ["🏦", "Сотрудник банка", "#9ad0ff"],
+  parking: ["🅿️", "Парковка", "#6ea8ff"], bank: ["🏦", "Банк", "#ffd166"], cafe: ["☕", "Кафе", "#f5b860"], shop: ["🛒", "Магазины", "#f5b860"], house: ["🏠", "Дома и коттеджи", "#f5b860"],
+  gun: ["🔫", "Оружие и экипировка", "#ff7a59"], gallery: ["🖼", "Галерея", "#ffd166"], gas: ["⛽", "Заправка", "#f5b860"], med: ["💊", "Аптеки и больница", "#ff8fa3"],
+  hotel: ["🏨", "Отели", "#f5b860"], jewel: ["💎", "Ювелирные", "#ffd166"], police: ["🚓", "Полиция", "#6ea8ff"], club: ["💃", "Стрип-клуб", "#f5b860"],
+  ct_safe: ["🔐", "Сейфы", "#ffd166"], ct_cargo: ["📦", "Груз", "#d6a2ff"], ct_cash: ["💵", "Кассы", "#9be15d"], ct_keydoor: ["🗝", "Двери под ключ-карту", "#ff5a64"],
+  ct_door: ["🔒", "Запертые двери", "#ff9f43"], ct_cam: ["📷", "Камеры", "#ff5a64"], ct_loot: ["", "Лут", "#ffd166"], ct_cont: ["", "Шкафы и ящики", "#b9c4d6"], ct_trash: ["", "Мусорки", "#8d99ae"],
+  mo_lenny: ["🍺", "Ленни", "#c6ef3a"], mo_barter: ["🚪", "Подозрительная дверь", "#d6a2ff"], mo_roulette: ["🎰", "Рулетка", "#ffd166"], mo_heli: ["🚁", "Вертолётная площадка", "#9ad0ff"], mo_mail: ["📮", "Почта", "#9ad0ff"],
+  pr_escape: ["🏃", "Точки побега", "#c6ef3a"], pr_npc: ["🧑‍🎨", "Тату-мастер", "#d6a2ff"], pr_fuse: ["🔌", "Электрощиток", "#ffd166"], pr_switch: ["⚡", "Рубильник", "#ff5a64"],
+  pr_phone: ["☎️", "Телефоны", "#9ad0ff"], pr_door: ["🚪", "Двери камер", "#b9c4d6"], pr_vent: ["🌀", "Вентиляция", "#4fd1c5"], pr_cam: ["📷", "Камеры наблюдения", "#ff5a64"],
+  place: ["➡️", "Переход на карту", "#c6ef3a"], poi: ["📍", "Место", "#c6ef3a"]};
+const RM_OFF = new Set(load("rmOff2", ["ct_loot", "ct_cont", "ct_trash", "ct_cam", "ct_door", "ct_safe", "ct_cash", "ct_cargo", "ct_keydoor", "parking", "pr_cam", "pr_door", "pr_vent"]));
+let RM = null, rmCur = null, rmS = 1, rmTx = 0, rmTy = 0, rmFit = 1, rmSel = -1;
+async function openReal(id){
+  if (!RM) { $("map-info").innerHTML = `<p class="note">Загружаю карту…</p>`; try { RM = await (await fetch("assets/maps/points.json")).json(); } catch (e) { $("map-info").innerHTML = `<p class="note">Не удалось загрузить карту — нет связи.</p>`; return; } }
+  rmCur = RM.maps.find(m => m.id === id) || RM.maps[0]; rmSel = -1; save("rmMap", rmCur.id);
+  mapMode = "real"; ["mb-city", "mb-desert", "pin-bar", "pin-form", "map-legend", "map-src"].forEach(k => $(k).hidden = true); $("mb-real").hidden = false; $("rm-f").hidden = false;
+  document.querySelectorAll("#map-tabs .chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.m === "r:" + rmCur.id));
+  $("rm-img").src = `assets/maps/${rmCur.id}.webp`; $("mb-real").style.background = rmCur.bg;
+  rmLayout(true); rmFilters(); rmDraw();
+  $("map-info").innerHTML = `<h3>${rmCur.ru}</h3><p class="sub">${rmCur.sub}</p><p class="note">Двигай карту пальцем, приближай двумя пальцами или кнопками ＋ −. Нажми на значок — расскажу, что там. Слои включаются кнопками под картой.</p>`;
+}
+function rmLayout(reset){
+  const box = $("mb-real"), W = box.clientWidth, H = box.clientHeight;
+  rmFit = Math.min(W / rmCur.w, H / rmCur.h);
+  $("rm-stage").style.width = rmCur.w * rmFit + "px"; $("rm-stage").style.height = rmCur.h * rmFit + "px";
+  if (reset) {
+    rmS = 1; rmTx = (W - rmCur.w * rmFit) / 2; rmTy = (H - rmCur.h * rmFit) / 2;
+    if (rmCur.focus) { rmS = rmCur.focus.z; rmTx = W / 2 - rmCur.w * rmFit * rmCur.focus.x / 100 * rmS; rmTy = H / 2 - rmCur.h * rmFit * rmCur.focus.y / 100 * rmS; }
+  }
+  rmApply();
+}
+function rmApply(){
+  const box = $("mb-real"), W = box.clientWidth, H = box.clientHeight, sw = rmCur.w * rmFit * rmS, sh = rmCur.h * rmFit * rmS;
+  rmTx = sw <= W ? (W - sw) / 2 : Math.min(0, Math.max(W - sw, rmTx)); rmTy = sh <= H ? (H - sh) / 2 : Math.min(0, Math.max(H - sh, rmTy));
+  $("rm-stage").style.transform = `translate(${rmTx}px,${rmTy}px) scale(${rmS})`;
+  $("rm-pts").style.setProperty("--inv", (1 / rmS).toFixed(3));
+}
+function rmZoom(f, cx, cy){
+  const box = $("mb-real").getBoundingClientRect(); if (cx == null) { cx = box.width / 2; cy = box.height / 2; }
+  const ns = Math.max(1, Math.min(rmCur.id === "city" ? 12 : 6, rmS * f)); rmTx = cx - (cx - rmTx) * ns / rmS; rmTy = cy - (cy - rmTy) * ns / rmS; rmS = ns; rmApply();
+}
+function rmFilters(){
+  const cnt = {}; rmCur.pts.forEach(q => { if (RC[q[2]] && q[2] !== "place" && q[2] !== "poi") cnt[q[2]] = (cnt[q[2]] || 0) + 1; });
+  $("rm-f").innerHTML = Object.keys(cnt).map(c => `<button class="chip" data-c="${c}" aria-pressed="${!RM_OFF.has(c)}" style="padding:5px 10px">${RC[c][0] || "●"} ${RC[c][1]} · ${cnt[c]}</button>`).join("");
+}
+function rmDraw(){
+  $("rm-pts").innerHTML = rmCur.pts.map((q, i) => {
+    const [x, y, c, n] = q, k = RC[c];
+    if (c === "district" || c === "area") return `<span class="rpt lbl" style="left:${x}%;top:${y}%">${n}${q[4] && rmCur.id === "state" ? ` · ${q[4]}` : ""}</span>`;
+    if (!k || RM_OFF.has(c)) return "";
+    return k[0] ? `<button class="rpt big${i === rmSel ? " sel" : ""}" data-i="${i}" style="left:${x}%;top:${y}%;--c:${k[2]}" aria-label="${n}">${k[0]}</button>`
+                : `<button class="rpt dot${i === rmSel ? " sel" : ""}" data-i="${i}" style="left:${x}%;top:${y}%;--c:${k[2]}" aria-label="${n}"></button>`;
+  }).join("");
+}
+function rmInfo(i){
+  const q = rmCur.pts[i], [x, y, c, n, ex] = q, k = RC[c] || ["📍", "", "#fff"], L = RM.locs[ex];
+  rmSel = i; rmDraw(); haptic();
+  let h = `<h3>${k[0] || "●"} ${n}</h3>` + (ex && !L && c !== "place" ? `<p class="sub">${ex}</p>` : "") + (k[1] && k[1] !== n ? `<p class="note">${k[1]}</p>` : "");
+  if (c === "place") { const to = RM.maps.find(m => m.id === ex); if (to) h += `<button class="btn ghost" data-go="${to.id}">Открыть карту: ${to.ru}</button>`; }
+  if (L) {
+    h += (L.img ? `<img src="assets/loc/${L.img}.webp" alt="" style="width:100%;border-radius:10px;margin:6px 0" loading="lazy">` : "") +
+      `<p class="sub">${[L.size, L.d].filter(Boolean).join(" · ")}</p>` +
+      (L.loot.length ? `<b>Что там можно найти</b><div style="display:grid;gap:4px;margin-top:4px">` + L.loot.map(t => `<div class="lootrow">${t[0] ? `<img src="assets/icons/${t[0]}.webp" alt="" loading="lazy">` : ""}<span style="color:${t[1]}">●</span><span>${t[2]}</span></div>`).join("") + `</div>` : "");
+  }
+  $("map-info").innerHTML = h;
+}
+(() => {
+  const box = $("mb-real"), P = new Map(); let start = null, moved = 0;
+  box.addEventListener("pointerdown", e => { box.setPointerCapture(e.pointerId); P.set(e.pointerId, {x: e.clientX, y: e.clientY}); start = {tx: rmTx, ty: rmTy, s: rmS, pts: [...P.values()].map(v => ({...v}))}; moved = 0; });
+  box.addEventListener("pointermove", e => {
+    if (!P.has(e.pointerId) || !rmCur) return; P.set(e.pointerId, {x: e.clientX, y: e.clientY});
+    const r = box.getBoundingClientRect(), now = [...P.values()];
+    if (now.length === 1 && start.pts.length === 1) { const dx = now[0].x - start.pts[0].x, dy = now[0].y - start.pts[0].y; moved = Math.max(moved, Math.abs(dx) + Math.abs(dy)); rmTx = start.tx + dx; rmTy = start.ty + dy; rmApply(); }
+    else if (now.length >= 2 && start.pts.length >= 2) {
+      const d0 = Math.hypot(start.pts[0].x - start.pts[1].x, start.pts[0].y - start.pts[1].y), d1 = Math.hypot(now[0].x - now[1].x, now[0].y - now[1].y);
+      const cx = (now[0].x + now[1].x) / 2 - r.left, cy = (now[0].y + now[1].y) / 2 - r.top; moved = 99;
+      rmS = start.s; rmTx = start.tx; rmTy = start.ty; rmZoom(d1 / d0, cx, cy);
+    }
+  });
+  const up = e => {
+    const t = e.target.closest && e.target.closest("[data-i]");
+    if (P.size === 1 && moved < 8 && t) rmInfo(+t.dataset.i);
+    P.delete(e.pointerId); start = {tx: rmTx, ty: rmTy, s: rmS, pts: [...P.values()].map(v => ({...v}))};
+  };
+  box.addEventListener("pointerup", up); box.addEventListener("pointercancel", e => P.delete(e.pointerId));
+  box.addEventListener("wheel", e => { if (!rmCur) return; e.preventDefault(); const r = box.getBoundingClientRect(); rmZoom(e.deltaY < 0 ? 1.25 : 0.8, e.clientX - r.left, e.clientY - r.top); }, {passive: false});
+  box.querySelector(".rm-z").addEventListener("pointerdown", e => e.stopPropagation());
+  box.querySelector(".rm-z").addEventListener("click", e => { const b = e.target.closest("[data-z]"); if (!b || !rmCur) return; haptic(); +b.dataset.z ? rmZoom(+b.dataset.z > 0 ? 1.6 : 1 / 1.6) : rmLayout(true); });
+  $("rm-f").addEventListener("click", e => { const b = e.target.closest("[data-c]"); if (!b) return; const c = b.dataset.c; RM_OFF.has(c) ? RM_OFF.delete(c) : RM_OFF.add(c); save("rmOff2", [...RM_OFF]); haptic(); rmFilters(); rmDraw(); });
+  $("map-info").addEventListener("click", e => { const b = e.target.closest("[data-go]"); if (!b) return; document.querySelector(`#map-tabs [data-m="r:${b.dataset.go}"]`).click(); });
+  window.addEventListener("resize", () => { if (rmCur && !$("mb-real").hidden) rmLayout(false); });
+})();
 $("map-tabs").addEventListener("click", e => {
   const b = e.target.closest("[data-m]"); if (!b) return;
+  if (b.dataset.m.startsWith("r:")) {
+    document.querySelectorAll("#map-tabs .chip").forEach(c => c.setAttribute("aria-pressed", c === b));
+    mapMode = "real"; $("mb-real").hidden = false; $("rm-f").hidden = false; $("mb-city").hidden = true; $("mb-desert").hidden = true; $("map-legend").hidden = true; $("map-src").hidden = true;
+    $("pin-bar").hidden = true; $("pin-form").hidden = true; placing = false; $("mb-city").classList.remove("placing");
+    openReal(b.dataset.m.slice(2)); haptic(); return;
+  }
+  $("mb-real").hidden = true; $("rm-f").hidden = true; $("map-legend").hidden = false; $("map-src").hidden = false;
   mapMode = b.dataset.m;
   document.querySelectorAll("#map-tabs .chip").forEach(c => c.setAttribute("aria-pressed", c === b));
   $("mb-city").hidden = mapMode !== "city"; $("mb-desert").hidden = mapMode !== "desert";
-  $("map-info").innerHTML = mapMode === "city" ? `<h3>🏙 Looty Bay</h3><p class="sub">Город, где грабят. Нажми на значок — расскажу, что там. Схема упрощённая; в игре на карте есть поиск предметов по названию и слои.</p>`
+  $("map-info").innerHTML = mapMode === "city" ? `<h3>📍 Схема и метки игроков</h3><p class="sub">Упрощённая схема Looty Bay с метками, которые ставят игроки (живут 3 дня): где сейчас скупщик, засада копов, хороший лут. Нажми «Поставить метку», чтобы добавить свою.</p>`
     : `<h3>🏜 Глобальная карта</h3><p class="sub">Пустыня вокруг Looty Bay — общая карта поселений и баз всего сервера. 10 районов: в центре Highlands (3-й уровень), рядом Rivertown, Fallrock и El Peso (2-й), по краям шесть районов 1-го уровня. Looty Bay — на восточном побережье. Нажми на район.</p>`;
   legend(); haptic();
   $("pin-bar").hidden = mapMode !== "city"; if (mapMode !== "city") { $("pin-form").hidden = true; placing = false; $("mb-city").classList.remove("placing"); }
@@ -1309,6 +1426,7 @@ function show(v){
   cur = v;
   ["guide", "map", "items", "wipe", "calc", "timer", "info"].forEach(x => $("v-" + x).hidden = x !== v);
   if (v === "timer") loadTimers();
+  if (v === "map" && !rmCur) openReal(load("rmMap", "city"));
   document.querySelectorAll("nav.bar button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   if (v === "info") markNewsSeen();
   window.scrollTo(0, 0); haptic();
@@ -1371,7 +1489,7 @@ renderGuide(); renderWipe(); renderSrvList(); loadKefir(); $("wipe-vid").innerHT
 setInterval(renderWipe, 30e3);
 const startTab = (tg && tg.initDataUnsafe && tg.initDataUnsafe.start_param) || new URLSearchParams(location.search).get("tab");
 if (["map", "items", "wipe", "calc", "timer", "info"].includes(startTab)) show(startTab);
-if (location.hash === "#desert") document.querySelector('#map-tabs [data-m="desert"]').click();
+if (location.hash === "#desert") document.querySelector('#map-tabs [data-m="r:state"]').click();
 if (inTg) fetch(WORKER + "/hello", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({initData: tg.initData})}).catch(() => {});
 if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) navigator.serviceWorker.register("sw.js").catch(() => {});
 </script>
