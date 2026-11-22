@@ -328,11 +328,13 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
     </div>
     <div class="card">
       <h3>🌿 Доход плантации</h3>
-      <p class="sub">На столе 6 кустов, в комнате до 6 столов. С куста 2–4 пакета урожая, продаёшь скупщику.</p>
-      <div class="grid2">
-        <label><span class="sub">Кусты</span><select id="g-r"><option value="4000">Обычные</option><option value="6000">Эпические</option><option value="8000">Легендарные</option></select></label>
-        <label><span class="sub">Столов</span><select id="g-t"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option selected>6</option></select></label>
+      <p class="sub">На столе 6 мест под кусты, в комнате до 6 столов. С куста 2–4 пакета урожая, продаёшь скупщику. Укажи, какие кусты стоят <b>на одном столе</b>:</p>
+      <div style="display:grid;grid-template-columns:1fr 96px;gap:6px 12px;align-items:center">
+        <span>🟢 Зелёные (обычные)</span><input type="number" id="g-u" inputmode="numeric" value="1" min="0" max="6">
+        <span>🟣 Фиолетовые (эпические)</span><input type="number" id="g-e" inputmode="numeric" value="4" min="0" max="6">
+        <span>🟡 Золотые (легендарные)</span><input type="number" id="g-l" inputmode="numeric" value="1" min="0" max="6">
       </div>
+      <label><span class="sub">Сколько таких столов</span><select id="g-t"><option selected>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
       <div class="res" id="g-res"></div>
       <p class="note">Цены пакетов и стоимость комнаты/столов — по данным игроков <span class="tag rumor">не подтверждено</span>. После сбора куст отрастает сам. Улучшения стола: вентилятор +12% к росту, насос +14% (район 2), УФ-лампа +24% (район 3).</p>
     </div>
@@ -710,6 +712,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:15, t:"22.11.2026", items:["Доход плантации: можно смешивать кусты на столе — зелёные, фиолетовые и золотые (например 1 + 4 + 1)."]},
   {v:14, t:"22.11.2026", items:["Новая вкладка «Таймер»: таймер кустов, реактора и морозильника — бот напишет в Telegram, когда готово.", "Калькулятор дохода плантации.", "Дешифраторы: все постройки, заборы и ворота, легендарный дешифратор."]},
   {v:13, t:"17.11.2026", items:["Исправлено: прочность снаряжения падает при смерти гражданским; преступник при смерти теряет всё."]},
   {v:12, t:"17.11.2026", items:["Исправлено: маску в ROB RUN снять нельзя — надел, и ты преступник до выезда из Looty Bay. Разведку делай без маски."]},
@@ -1211,13 +1214,22 @@ setInterval(() => { if (cur === "timer") renderTimers(); }, 30000);
 
 /* ---------- Доход плантации ---------- */
 function grow(){
-  const bag = +$("g-r").value, t = +$("g-t").value, bushes = t * 6;
-  const min = bushes * 2 * bag, avg = bushes * 3 * bag, max = bushes * 4 * bag, setup = 280000 + 40000 * t;
-  $("g-res").innerHTML = `<span>Кустов</span><b>${bushes}</b><span>Пакет у скупщика</span><b>${money(bag)}</b><span>За один сбор</span><b>${money(min)} – ${money(max)}</b>` +
+  const n = id => Math.max(0, Math.min(6, Math.round(+$(id).value || 0)));
+  const cu = n("g-u"), ce = n("g-e"), cl = n("g-l"), t = +$("g-t").value, perTable = cu + ce + cl;
+  if (perTable > 6) { $("g-res").innerHTML = `<span>На столе ${perTable} кустов</span><b class="hi">максимум 6 — убавь</b>`; return; }
+  if (!perTable) { $("g-res").innerHTML = `<span>Кустов нет</span><b>укажи хотя бы один</b>`; return; }
+  const bagsValue = (cu * 4000 + ce * 6000 + cl * 8000) * t;          // стоимость «одного пакета с каждого куста»
+  const min = bagsValue * 2, avg = bagsValue * 3, max = bagsValue * 4, setup = 280000 + 40000 * t;
+  const pb = Math.ceil(setup / avg);
+  $("g-res").innerHTML = `<span>Кустов на столе</span><b>🟢${cu} 🟣${ce} 🟡${cl}${perTable < 6 ? ` · свободно ${6 - perTable}` : ""}</b>` +
+    `<span>Всего кустов</span><b>${perTable * t}</b>` +
+    `<span>Пакет у скупщика</span><b>🟢4к · 🟣6к · 🟡8к</b>` +
+    `<span>За один сбор</span><b>${money(min)} – ${money(max)}</b>` +
     `<span>В среднем за сбор</span><b class="hi">${money(avg)}</b><span>Вложения (комната + столы)</span><b>${money(setup)}</b>` +
-    `<span>Окупится за</span><b>≈${Math.ceil(setup / avg)} ${Math.ceil(setup / avg) === 1 ? "сбор" : Math.ceil(setup / avg) < 5 ? "сбора" : "сборов"}</b>`;
+    `<span>Окупится за</span><b>≈${pb} ${pb === 1 ? "сбор" : pb < 5 ? "сбора" : "сборов"}</b>` +
+    (perTable < 6 ? `<span>Если добить стол обычными</span><b>+${money((6 - perTable) * 4000 * 3 * t)} за сбор</b>` : "");
 }
-["g-r", "g-t"].forEach(id => $(id).addEventListener("input", grow));
+["g-u", "g-e", "g-l", "g-t"].forEach(id => $(id).addEventListener("input", grow));
 grow();
 
 /* ---------- Навигация ---------- */
