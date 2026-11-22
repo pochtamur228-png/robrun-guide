@@ -26,7 +26,8 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 var(--font)}
-body{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))}
+:root{--sb:max(env(safe-area-inset-bottom,0px),var(--tg-safe-area-inset-bottom,0px),var(--tg-content-safe-area-inset-bottom,0px),var(--tgsb,0px))}
+body{padding-bottom:calc(78px + var(--sb,0px) + var(--nb,0px))}
 /* размытые пальмы Looty Bay за всем приложением (fixed-слой — background-attachment:fixed не работает в iOS) */
 .scene{position:fixed;inset:0;z-index:-1;background:url(assets/bg.jpg) center/cover no-repeat,var(--bg)}
 .scene::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,16,25,.15),rgba(8,16,25,.6) 50%,rgba(8,16,25,.92))}
@@ -84,7 +85,7 @@ textarea{min-height:110px;resize:vertical;font:inherit}
 .burn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .burn .card{border-top:3px solid var(--c)}
 #g-tables input::-webkit-outer-spin-button,#g-tables input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(8,14,22,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:2px solid var(--lime);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(8,14,22,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:2px solid var(--lime);display:flex;justify-content:center;padding:6px 6px calc(6px + var(--sb,0px))}
 nav.bar .in{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%;max-width:640px}
 nav.bar button{border:0;background:none;padding:6px 2px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted);cursor:pointer;position:relative}
 nav.bar button i{font-style:normal;font-size:20px;line-height:1}
@@ -112,7 +113,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 .citem{border:1px solid var(--line);border-bottom:3px solid var(--rc);border-radius:12px;padding:8px 6px;background:var(--bg2);display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:12px;cursor:pointer;color:inherit}
 .citem img{width:58px;height:58px;object-fit:contain}.citem b{font-size:12.5px;line-height:1.2}.citem span{color:var(--muted)}
 .dhead{display:flex;gap:12px;align-items:center}.dhead img{width:96px;height:96px;object-fit:contain;border-radius:12px;background:var(--bg2);border:2px solid var(--rc)}
-.bar{height:7px;border-radius:4px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--lime)}
+.vbar{height:7px;border-radius:4px;background:var(--line);overflow:hidden}.vbar i{display:block;height:100%;background:var(--lime)}
 .vgrid{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}
 .tipimg{display:flex;gap:6px;overflow-x:auto;margin:6px 0}.tipimg img{height:150px;border-radius:10px;flex:none}
 #rm-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
@@ -444,6 +445,15 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const tg = window.Telegram && window.Telegram.WebApp;
 const inTg = !!(tg && tg.initData);
+// нижняя панель: в Telegram окно бывает выше видимой области (лист / шторка) — поднимаем панель на разницу
+function fitBar(){
+  if (!inTg) return;
+  const vh = tg.viewportStableHeight || tg.viewportHeight, off = vh ? Math.max(0, Math.round(window.innerHeight - vh)) : 0;
+  document.querySelector("nav.bar").style.bottom = off + "px"; document.documentElement.style.setProperty("--nb", off + "px");
+  const sa = ((tg.safeAreaInset && tg.safeAreaInset.bottom) || 0) + ((tg.contentSafeAreaInset && tg.contentSafeAreaInset.bottom) || 0);
+  document.documentElement.style.setProperty("--tgsb", Math.max(sa, tg.platform === "ios" ? 20 : 0) + "px");   // на iPhone — место под полоску «домой»
+}
+if (inTg) { try { tg.onEvent("viewportChanged", fitBar); tg.onEvent("safeAreaChanged", fitBar); tg.onEvent("contentSafeAreaChanged", fitBar); } catch (e) {} window.addEventListener("resize", fitBar); fitBar(); setTimeout(fitBar, 300); setTimeout(fitBar, 1200); }
 if (inTg) { tg.ready(); tg.expand(); try { tg.setHeaderColor("#081019"); tg.setBackgroundColor("#081019"); tg.setBottomBarColor && tg.setBottomBarColor("#081019"); } catch (e) {} }
 const haptic = k => { try { if (tg && tg.HapticFeedback) k ? tg.HapticFeedback.notificationOccurred(k) : tg.HapticFeedback.selectionChanged(); } catch (e) {} };
 const save = (k, v) => { try { localStorage.setItem("rr:" + k, JSON.stringify(v)); } catch (e) {} };
@@ -756,6 +766,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:22, t:"22.11.2026", items:["Исправлено: нижнее меню обрезалось (после прошлого обновления) и не учитывало край экрана iPhone в Telegram."]},
   {v:21, t:"22.11.2026", items:["Вещи: каталог всех 538 предметов с иконками — цена, редкость, размер, где найти, поиск и фильтры; из карточки — сразу в планировщик прокачки.", "Вещи → Транспорт: все 11 машин — скорость, разгон, управление, багажник, грузы, цены.", "Гайд → «🎮 Из игры»: 39 тем из внутриигрового справочника с картинками.", "Карта → «🏢 Локации»: список всех мест с фото и лутом, нажатие показывает место на карте."]},
   {v:20, t:"22.11.2026", items:["Настоящие карты: Looty Bay, Штат, Мотель Ленни, Центр сбыта и Тюрьма — с приближением пальцами.", "Больше 1000 меток: скупщики, контрабандисты, банкоматы, парковки, сейфы, груз, кассы, двери под ключ-карту, камеры, лут — слои включаются кнопками.", "Нажми на здание — фото и что там можно найти. Старая схема с метками игроков — вкладка «Метки игроков»."]},
   {v:19, t:"22.11.2026", items:["Планировщик прокачки: иконки всех предметов — у цели, в цепочке и в таблице ветки."]},
@@ -1253,7 +1264,7 @@ const VEH = [
   ["Полиция: Longhorn Outrider", "", "Полиция, служебная", 50, 60, 50, "42", "12", 4, 0, 0, 0, "", "Выдаётся на смене полицейского. Таранит и замедляет машины преступников."],
   ["Полицейская машина", "", "Полиция, служебная", 35, 40, 40, "42", "12", 4, 0, 0, 0, "", "Выдаётся на смене полицейского."]];
 function renderVeh(){
-  const bar = (l, v) => `<span class="sub">${l}</span><div class="bar"><i style="width:${v}%"></i></div><b>${v}</b>`;
+  const bar = (l, v) => `<span class="sub">${l}</span><div class="vbar"><i style="width:${v}%"></i></div><b>${v}</b>`;
   $("veh-box").innerHTML = VEH.map(v => `<div class="card"><div class="dhead" style="--rc:var(--line)">${v[1] ? `<img src="${icoUrl(v[1])}" alt="" style="width:80px;height:80px">` : `<span style="font-size:42px">🚓</span>`}<div><h3 style="margin:0">${v[0]}</h3><span class="sub">${v[2]}${v[12] ? ` · поселение ур. ${v[12]}+` : ""}</span></div></div>
     <div class="vgrid" style="margin-top:6px">${bar("Скорость", v[3])}${bar("Разгон", v[4])}${bar("Управление", v[5])}</div>
     <div class="res" style="margin-top:6px"><span>🎒 Багажник, ячеек</span><b>${v[6]}</b><span>📦 Грузы, мест</span><b>${v[7]}</b><span>Мест в салоне</span><b>${v[8]}</b>
