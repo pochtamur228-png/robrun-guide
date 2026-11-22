@@ -83,6 +83,7 @@ textarea{min-height:110px;resize:vertical;font:inherit}
 .list{display:flex;flex-direction:column;gap:8px}
 .burn{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .burn .card{border-top:3px solid var(--c)}
+#g-tables input::-webkit-outer-spin-button,#g-tables input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 nav.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(8,14,22,.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:2px solid var(--lime);display:flex;justify-content:center;padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
 nav.bar .in{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;width:100%;max-width:640px}
 nav.bar button{border:0;background:none;padding:6px 2px;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:var(--muted);cursor:pointer;position:relative}
@@ -292,13 +293,16 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <p class="note">Цифры защиты и предохранителей — по данным игроков <span class="tag rumor">не подтверждено</span>. Чужой сейф дешифратор не открывает — нужен мастер-ключ.</p>
     </div>
     <div class="card">
-      <h3>🌳 Планировщик прокачки</h3>
-      <p class="sub">Выбери цель — посчитаю всю цепочку исследований до неё.</p>
-      <label><span class="sub">Цепочка</span><select id="r-c"></select></label>
+      <h3>🌳 Планировщик прокачки: 171 поставка</h3>
+      <p class="sub">Выбери ветку и цель — посчитаю всю цепочку исследований до неё, цену на ноутбуке, уровень района и нужный срок.</p>
+      <label><span class="sub">Ветка</span><select id="r-c"></select></label>
       <label><span class="sub">Цель</span><select id="r-t"></select></label>
       <div class="res" id="r-res"></div>
       <div class="note" id="r-path"></div>
-      <p class="note">Исследование — один раз и грязными деньгами; сами предметы покупаются отдельно. Цены могут отличаться на сервере <span class="tag rumor">не подтверждено</span>.</p>
+      <div class="note" id="r-next"></div>
+      <details><summary class="sub" style="cursor:pointer">📋 Вся ветка: исследование и цена на ноутбуке</summary><div id="r-all" style="margin-top:6px"></div></details>
+      <p class="note">Цены — сводка вики игроков (проверено 20.11) <span class="tag rumor">не подтверждено</span>: на некоторых штатах могут отличаться, точная — на ноутбуке в игре. «—» на ноутбуке — цену пока никто не подтвердил. ⛓ — нужен тюремный срок.</p>
+      <p class="note">Исследование оплачивается один раз и грязными деньгами; сами предметы покупаются на ноутбуке отдельно.</p>
     </div>
     <div class="card">
       <h3>⛓ Срок после рейда <span class="tag rumor">не подтверждено</span></h3>
@@ -324,19 +328,22 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <button class="btn" id="tm-go">▶ Запустить таймер</button>
       <div class="note" id="tm-msg"></div>
       <div id="tm-list"></div>
-      <p class="note">Kefir не публикует время роста и варки — ставь то, что видишь у себя в игре. Игроки пишут: куст 1–2 часа, реактор I ≈60 мин, реактор II — 53.</p>
+      <p class="note">Kefir не публикует время роста и варки — ставь то, что видишь у себя в игре. Куст — 60 мин без улучшений, 40 мин со всеми тремя; реактор I ≈60 мин, реактор II — 53.</p>
     </div>
     <div class="card">
       <h3>🌿 Доход плантации</h3>
-      <p class="sub">На столе 6 мест под кусты, в одной плантации до 6 столов (больше 6 — значит, вторая плантация). С куста 2–4 пакета, продаёшь скупщику. Укажи кусты на <b>каждом</b> столе: 🟢 зелёные, 🟣 фиолетовые, 🟡 золотые.</p>
+      <p class="sub">Цикл куста — <b>60 минут</b> для любой редкости. Улучшения стола ускоряют рост и складываются: 🌀 вентилятор +12%, 💧 насос +14%, 🔆 УФ-лампа +24% (все три — цикл 40 мин). Созревший куст ждёт, пока его соберут.</p>
       <div id="g-tables"></div>
-      <button class="btn ghost" id="g-add">＋ Добавить стол</button>
+      <div class="row" style="gap:8px"><button class="btn ghost" id="g-add" style="flex:1">＋ Добавить стол</button><button class="btn ghost" id="g-all" style="flex:1">⚡ Все улучшения</button></div>
+      <span class="sub">Как часто собираешь урожай</span>
+      <div class="chips" id="g-freq"></div>
       <div class="grid2">
-        <label><span class="sub">Рост куста, минут</span><input type="number" id="g-time" inputmode="numeric" value="90" min="10" max="720"></label>
+        <label><span class="sub">Известность (бонус скупщика)</span><select id="g-noto"><option value="1">Ур. 1 (+0%)</option><option value="2">Ур. 2 (+10%)</option><option value="3">Ур. 3 (+20%)</option><option value="4">Ур. 4 (+35%)</option><option value="5">Ур. 5 (+50%)</option></select></label>
         <label><span class="sub">Часов в игре за день</span><input type="number" id="g-hrs" inputmode="numeric" value="6" min="1" max="24"></label>
       </div>
+      <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="g-own" style="width:20px;height:20px;flex:none;margin:0"><span class="sub">Плантация, столы и улучшения уже куплены</span></label>
       <div class="res" id="g-res"></div>
-      <p class="note">Цены пакетов и стоимость комнаты/столов — по данным игроков <span class="tag rumor">не подтверждено</span>. После сбора куст отрастает сам. Улучшения стола: вентилятор +12% к росту, насос +14% (район 2), УФ-лампа +24% (район 3) — с ними ставь время роста меньше. Доход в день считается по часам в игре: урожай собирается только вживую.</p>
+      <p class="note">Цикл и бонусы улучшений — из файлов игры (по данным фан-сайтов); цены пакетов, комнаты, столов и улучшений — по данным игроков <span class="tag rumor">не подтверждено</span>. С куста 2–4 пакета, считаем в среднем 3. Постройка «Водохранилище» в районе даёт шанс на 1–2 пакета сверху. Насос продаётся с района 2-го уровня, УФ-лампа — с 3-го.</p>
     </div>
   </section>
 
@@ -712,6 +719,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:18, t:"22.11.2026", items:["Калькулятор плантации по механике игры: цикл куста 60 мин для любой редкости, улучшения на каждом столе (вентилятор +12%, насос +14%, УФ-лампа +24%, все три — 40 мин), частота сбора, бонус известности, «уже куплено».", "Таймер кустов: 60 / 53 / 48 / 40 мин по улучшениям.", "Планировщик прокачки: все 171 поставка в 8 ветках — цепочка, цена на ноутбуке, уровень района, срок, вся ветка таблицей."]},
   {v:17, t:"22.11.2026", items:["Плантация: у каждого стола свой набор кустов (например стол 1 — 1+4+1, стол 2 — весь зелёный), до 12 столов в двух комнатах. Столы запоминаются."]},
   {v:16, t:"22.11.2026", items:["Доход плантации в час, в день и за неделю до вайпа: укажи время роста куста и сколько часов играешь."]},
   {v:15, t:"22.11.2026", items:["Доход плантации: можно смешивать кусты на столе — зелёные, фиолетовые и золотые (например 1 + 4 + 1)."]},
@@ -1043,42 +1051,37 @@ function decoders(){
     `<span>Предохранители стоили хозяину</span><b>${money(u * 2e4 + e * 1e5 + l * 2.5e5)}</b>`;
 }
 ["d-b", "d-p", "d-u", "d-e", "d-l"].forEach(id => $(id).addEventListener("input", decoders));
-// шаги: [название, цена исследования $, уровень района, лет срока]
-const K = 1e3, M = 1e6;
-const CHAINS = [
-  {n: "Автоматы: KL-545 → RC 5.56 → SR Reaper", s: [["KL-545 Mk1", 25*K, 1], ["KL-545 Mk2", 50*K, 1], ["KL-545 Mk3", 100*K, 2], ["RC 5.56 Mk1", 200*K, 2], ["RC 5.56 Mk2", 400*K, 2], ["RC 5.56 Mk3", 800*K, 3], ["SR Reaper Mk1", 400*K, 3], ["SR Reaper Mk2", 800*K, 3], ["SR Reaper Mk3", 1.6*M, 3]]},
-  {n: "ПП: MC-10 → JP-7 → AP Scalar", s: [["MC-10 Mk1", 15*K, 1], ["MC-10 Mk2", 30*K, 1], ["MC-10 Mk3", 60*K, 2], ["JP-7 Mk1", 160*K, 2], ["JP-7 Mk2", 320*K, 2], ["JP-7 Mk3", 640*K, 3], ["AP Scalar Mk1", 400*K, 3], ["AP Scalar Mk2", 800*K, 3], ["AP Scalar Mk3", 1.6*M, 3]]},
-  {n: "Дробовики: Harris 500 → ORDR-12 → TAG-12K", s: [["Harris 500 Mk1", 15*K, 1], ["Harris 500 Mk2", 30*K, 1], ["Harris 500 Mk3", 60*K, 2], ["ORDR-12 Mk1", 160*K, 2], ["ORDR-12 Mk2", 320*K, 2], ["ORDR-12 Mk3", 640*K, 3], ["TAG-12K Mk1", 400*K, 3], ["TAG-12K Mk2", 800*K, 3], ["TAG-12K Mk3", 1.6*M, 3]]},
-  {n: "Пистолеты: DP-9 → LBR-44 → Vulture 50", s: [["DP-9 Mk1", 0, 1], ["DP-9 Mk2", 25*K, 1], ["LBR-44 Mk1", 100*K, 2], ["LBR-44 Mk2", 200*K, 2], ["Vulture 50 Mk1", 300*K, 3], ["Vulture 50 Mk2", 600*K, 3]]},
-  {n: "CB45 (нужен срок)", s: [["MC-10 Mk1", 15*K, 1], ["CB45 Mk1", 15*K, 1, 15], ["CB45 Mk2", 30*K, 1, 25], ["CB45 Mk3", 60*K, 2, 35]]},
-  {n: "STAR-H (нужен срок)", s: [["KL-545 Mk1", 25*K, 1], ["STAR-H Mk1", 100*K, 2, 180], ["STAR-H Mk2", 200*K, 2, 190], ["STAR-H Mk3", 400*K, 3, 200]]},
-  {n: "DRM-14 (нужен большой срок)", s: [["KL-545 Mk1", 25*K, 1], ["KL-545 Mk2", 50*K, 1], ["KL-545 Mk3", 100*K, 2], ["RC 5.56 Mk1", 200*K, 2], ["DRM-14 Mk1", 200*K, 3, 950], ["DRM-14 Mk2", 400*K, 3, 975], ["DRM-14 Mk3", 800*K, 3, 1000]]},
-  {n: "Броня: лёгкая → тяжёлая", s: [["Лёгкий бронежилет", 5*K, 1], ["Средний бронежилет", 15*K, 1], ["Штурмовой бронежилет", 250*K, 2], ["Тяжёлый бронежилет", 500*K, 3]]},
-  {n: "Сумки", s: [["Спортивная сумка (необычная)", 5*K, 1], ["Спортивная сумка (эпическая)", 35*K, 2], ["Спортивная сумка (легендарная)", 150*K, 3]]},
-  {n: "Машины: Tensa → Buletti", s: [["Fukurou Tensa", 50*K, 1], ["Royal E", 200*K, 2], ["Longhorn Wild", 500*K, 3], ["Buletti Soltempra", 2*M, 3]]},
-  {n: "Машины: Van → Royal J", s: [["Longhorn Van", 50*K, 1], ["Longhorn Titan", 200*K, 2], ["Royal J", 500*K, 3]]},
-  {n: "Защита базы: предохранители", s: [["Предохранитель +1", 10*K, 1], ["Предохранитель +3", 150*K, 2], ["Предохранитель +5", 500*K, 3]]},
-  {n: "Документы: участок", s: [["Право на участок, ур. 1", 50*K, 1], ["Право на участок, ур. 2", 200*K, 1], ["Право на участок, ур. 3", 1*M, 2]]},
-  {n: "Документы: поселение", s: [["Право на поселение, ур. 1", 100*K, 1], ["Право на поселение, ур. 2", 500*K, 1], ["Право на поселение, ур. 3", 2*M, 2]]},
-];
+// Дерево поставок: [ветка, название, родитель (индекс или -1), уровень района 0–3, исследование $, цена на ноутбуке $ или null, срок лет]
+// Источник цифр — сводная таблица timesaver.gg (ROB RUN Wiki + robrungame.com), проверено 20.11.2026. Не официально — сверяй на ноутбуке в игре.
+const BRANCH = {"W": "🔫 Оружие", "V": "🚗 Машины и тюнинг", "D": "📄 Документы и значки", "P": "🌿 Производство", "F": "🗄 Мебель и верстаки", "C": "🏗 Постройки и защита", "G": "🎒 Снаряжение", "X": "🧰 Гаджеты и инструменты"};
+const TREE = [["W","DP-9 Mk1",-1,0,0,300,0],["W","DP-9 Mk2",0,1,25000,null,0],["W","LBR-44 Mk1",0,2,100000,20000,0],["W","LBR-44 Mk2",2,2,200000,null,0],["W","Vulture 50 Mk1",2,3,300000,50000,0],["W","Vulture 50 Mk2",4,3,600000,null,0],["W","Harris 500 Mk1",-1,0,15000,3500,0],["W","Harris 500 Mk2",6,1,30000,null,0],["W","Harris 500 Mk3",7,2,60000,null,0],["W","ORDR-12 Mk1",6,2,160000,28000,0],["W","ORDR-12 Mk2",9,2,320000,null,0],["W","ORDR-12 Mk3",10,3,640000,null,0],["W","TAG-12K Mk1",9,3,400000,110000,0],["W","TAG-12K Mk2",12,3,800000,null,0],["W","TAG-12K Mk3",13,3,1600000,null,0],["W","MC-10 Mk1",-1,0,15000,3500,0],["W","MC-10 Mk2",15,1,30000,null,0],["W","MC-10 Mk3",16,2,60000,null,0],["W","JP-7 Mk1",15,2,160000,29000,0],["W","JP-7 Mk2",18,2,320000,null,0],["W","JP-7 Mk3",19,3,640000,null,0],["W","AP Scalar Mk1",18,3,400000,115000,0],["W","AP Scalar Mk2",21,3,800000,null,0],["W","AP Scalar Mk3",22,3,1600000,null,0],["W","CB45 Mk1",15,1,15000,3780,15],["W","CB45 Mk2",24,1,30000,null,25],["W","CB45 Mk3",25,2,60000,null,35],["W","KL-545 Mk1",-1,1,25000,6000,0],["W","KL-545 Mk2",27,1,50000,null,0],["W","KL-545 Mk3",28,2,100000,null,0],["W","RC 5.56 Mk1",27,2,200000,32000,0],["W","RC 5.56 Mk2",30,2,400000,null,0],["W","RC 5.56 Mk3",31,3,800000,null,0],["W","SR Reaper Mk1",30,3,400000,120000,0],["W","SR Reaper Mk2",33,3,800000,null,0],["W","SR Reaper Mk3",34,3,1600000,null,0],["W","DRM-14 Mk1",30,3,200000,103500,950],["W","DRM-14 Mk2",36,3,400000,null,975],["W","DRM-14 Mk3",37,3,800000,null,1000],["W","STAR-H Mk1",27,2,100000,27500,180],["W","STAR-H Mk2",39,2,200000,null,190],["W","STAR-H Mk3",40,3,400000,null,200],["V","Fukurou Tensa",-1,1,50000,200000,0],["V","Рулевая рейка",42,2,100000,68000,0],["V","Гоночные тормозные диски",43,2,100000,61500,75],["V","Усиленная рулевая рейка",43,3,220000,270000,0],["V","Блок управления",42,1,30000,14000,0],["V","Улучшенный блок управления",46,2,160000,75000,0],["V","Мощный блок управления",47,3,260000,330000,0],["V","Royal E",42,2,200000,1000000,0],["V","Longhorn Wild",49,3,500000,4500000,0],["V","Buletti Soltempra",50,3,2000000,10000000,0],["V","Турбокит",49,2,110000,79500,0],["V","Улучшенный турбокит",52,3,210000,238000,0],["V","Интеркулер",42,2,120000,72000,0],["V","Улучшенный интеркулер",54,3,200000,270000,0],["V","Longhorn Van",-1,1,50000,180000,0],["V","Longhorn Titan",56,2,200000,900000,0],["V","Royal J",57,3,500000,4000000,0],["V","Полицейская рация (легендарная)",57,3,200000,300000,275],["V","Багажник для груза",57,2,150000,86500,0],["V","Усиленный багажник для груза",60,3,250000,350000,0],["V","Сумки в багажник",56,1,20000,1200,0],["V","Большие сумки в багажник",62,2,130000,70500,0],["V","Вместительные сумки в багажник",63,3,220000,270000,0],["V","Romanov R8",-1,3,2000000,10000000,0],["D","Право на участок, ур. 1",-1,0,50000,100000,0],["D","Право на участок, ур. 2",66,1,200000,800000,0],["D","Право на участок, ур. 3",67,2,1000000,2000000,0],["D","Право на поселение, ур. 1",-1,0,100000,200000,0],["D","Право на поселение, ур. 2",69,1,500000,2000000,0],["D","Право на поселение, ур. 3",70,2,2000000,6000000,0],["D","Значок сержанта",-1,1,30000,8000,0],["D","Значок лейтенанта",72,2,200000,40000,0],["D","Значок капитана",73,3,500000,100000,0],["P","Плантация",-1,1,150000,100000,0],["P","Стол для выращивания",75,1,30000,40000,0],["P","Вентилятор (+12% к росту)",76,1,100000,25000,0],["P","Водяной насос (+14%)",77,2,200000,70000,0],["P","УФ-лампа (+24%)",78,3,500000,250000,0],["P","Химлаборатория",-1,1,160000,110000,0],["P","Лабораторный стол",80,1,10000,15000,0],["P","Лабораторные весы",81,2,15000,15000,335],["P","Химреактор (обычный)",80,1,20000,40000,0],["P","Химреактор (эпический)",83,2,150000,300000,0],["P","Химреактор (легендарный)",84,3,350000,700000,0],["P","Промышленный двигатель",83,1,10000,20000,0],["P","Промышленный термометр",86,2,50000,120000,0],["P","Химический преобразователь",87,3,150000,300000,0],["P","Морозильник (обычный)",83,1,15000,20000,0],["P","Морозильник (эпический)",89,2,30000,90000,0],["P","Морозильник (легендарный)",90,3,100000,250000,0],["P","Улучшенный испаритель",89,2,40000,100000,0],["P","Качественный хладагент",92,3,100000,250000,0],["F","Счётчик купюр (обычный)",-1,1,10000,30000,0],["F","Счётчик купюр (эпический)",94,2,50000,65000,0],["F","Счётчик купюр (легендарный)",95,3,150000,150000,0],["F","Верстак для груза",-1,1,5000,15000,0],["F","Слесарные инструменты",97,1,20000,15000,0],["F","Пила для груза",98,2,45000,41000,0],["F","Тиски",99,3,100000,250000,0],["F","Верстак контрабанды",-1,1,20000,20000,0],["F","Ящик с инструментами (эпический)",101,2,150000,200000,0],["F","Ящик с инструментами (легендарный)",102,3,300000,400000,0],["F","Принтер этикеток (обычный)",101,1,15000,30000,0],["F","Принтер этикеток (легендарный)",104,3,75000,150000,0],["F","Шкаф-аптечка",-1,1,5000,15000,0],["F","Маленькая тумбочка",-1,1,15000,4000,0],["F","Маленький сейф",107,1,50000,32000,0],["F","Средний сейф",108,2,100000,68000,0],["F","Большой сейф",109,3,150000,127000,0],["F","Средняя тумбочка",107,2,30000,29200,0],["F","Большая тумбочка",111,3,50000,45400,0],["F","Маленький стеллаж",-1,1,12000,3500,0],["F","Средний стеллаж",113,2,25000,26500,0],["F","Большой стеллаж",114,3,45000,46500,0],["F","Маленький шкаф безопасности",113,1,40000,30300,30],["F","Средний шкаф безопасности",116,2,90000,70000,140],["F","Большой шкаф безопасности",117,3,130000,132000,500],["F","Стол коллекций",-1,1,5000,15000,0],["F","Дополнительная коллекция",119,1,25000,34000,0],["F","Особая коллекция",120,2,50000,100000,0],["F","Уникальная коллекция",121,3,100000,250000,0],["C","Трейлер",-1,1,0,10000,0],["C","Маленький дом",123,2,200000,600000,0],["C","Сетчатый забор",-1,1,25000,15000,0],["C","Металлический забор",125,2,100000,50000,0],["C","Бетонный забор",126,3,200000,500000,0],["C","Предохранитель +1",-1,1,10000,20000,0],["C","Предохранитель +3",128,2,150000,100000,0],["C","Предохранитель +5",129,3,500000,250000,0],["C","Сигнализация (обычная)",128,1,15000,30000,105],["C","Сигнализация (эпическая)",128,2,25000,60000,0],["C","Сигнализация (легендарная)",132,2,50000,200000,0],["C","Автоподъёмник",-1,1,5000,10000,0],["C","Гараж",134,1,10000,25000,0],["C","Большой гараж",135,2,40000,70000,0],["C","Вертолётная площадка",136,2,200000,500000,0],["C","Мастерская",134,1,125000,75000,0],["C","Склад",138,1,130000,100000,0],["G","Спортивная сумка (обычная)",-1,0,5000,5000,0],["G","Спортивная сумка (эпическая)",140,2,35000,15000,0],["G","Спортивная сумка (легендарная)",141,3,150000,40000,0],["G","Лёгкий бронежилет",-1,0,5000,4000,0],["G","Средний бронежилет",143,1,15000,15000,0],["G","Штурмовой бронежилет",144,2,250000,70000,0],["G","Тяжёлый бронежилет",145,3,500000,140000,0],["G","Стальная пластина (обычная)",143,0,5000,1000,0],["G","Стальная пластина (легендарная)",147,3,100000,5000,225],["G","Подсумок (простой)",-1,0,5000,250,0],["G","Подсумок (обычный)",149,1,10000,1200,0],["G","Светошумовая граната",150,1,25000,4000,0],["G","Осколочная граната",151,2,75000,14960,0],["G","Подсумок (эпический)",150,2,25000,2700,0],["G","Подсумок (легендарный)",153,3,50000,12000,0],["G","Обезболивающее (обычное)",149,0,10000,500,0],["G","Армейская аптечка (AFAK)",155,1,5000,500,5],["G","Обезболивающее (эпическое)",155,2,20000,1600,0],["G","Инъектор (эпический)",157,2,25000,2000,0],["G","Инъектор (легендарный)",158,3,50000,6000,0],["X","Экшн-камера (обычная)",-1,0,5000,15000,0],["X","Кодовый планшет",160,2,25000,20000,0],["X","USB-хакер",161,2,50000,50000,0],["X","Ключи от ячеек",162,3,100000,100000,0],["X","Накладная на груз",160,2,50000,30000,410],["X","Экшн-камера (эпическая)",160,2,35000,30000,0],["X","Экшн-камера (легендарная)",165,3,80000,50000,0],["X","Отмычка",-1,0,5000,99,0],["X","Мастер-ключ",167,2,50000,55000,0],["X","Мини-дрель",167,2,100000,18000,0],["X","Полицейская рация (эпическая)",-1,2,25000,10000,60]];
+
 function fillPlanner(){
-  $("r-c").innerHTML = CHAINS.map((c, i) => `<option value="${i}">${c.n}</option>`).join("");
-  fillTargets();
+  $("r-c").innerHTML = Object.entries(BRANCH).map(([k, n]) => `<option value="${k}">${n} (${TREE.filter(x => x[0] === k).length})</option>`).join("");
+  $("r-c").value = load("rBr", "W"); fillTargets();
 }
 function fillTargets(){
-  const c = CHAINS[+$("r-c").value];
-  $("r-t").innerHTML = c.s.map((x, i) => `<option value="${i}"${i === c.s.length - 1 ? " selected" : ""}>${x[0]}</option>`).join("");
+  const br = $("r-c").value;
+  $("r-t").innerHTML = TREE.map((x, i) => [x, i]).filter(([x]) => x[0] === br).map(([x, i]) => `<option value="${i}">${x[1]}</option>`).join("");
+  const keep = load("rT" + br, null); if (keep != null && TREE[keep] && TREE[keep][0] === br) $("r-t").value = String(keep);
   plan();
 }
+const tierTxt = t => t ? `район ${t}-го уровня` : "без участка";
 function plan(){
-  const c = CHAINS[+$("r-c").value], t = +$("r-t").value, path = c.s.slice(0, t + 1);
-  const sum = path.reduce((a, x) => a + x[1], 0), lvl = Math.max(...path.map(x => x[2])), yrs = Math.max(0, ...path.map(x => x[3] || 0));
-  $("r-res").innerHTML = `<span>Исследований в цепочке</span><b>${path.length}</b><span>Всего на исследования</span><b class="hi">${money(sum)}</b>` +
-    `<span>Нужен уровень района</span><b>${lvl}</b>` + (yrs ? `<span>Нужен тюремный срок</span><b>${yrs} лет</b>` : "");
-  $("r-path").innerHTML = path.map(x => `${x[0]} — ${x[1] ? money(x[1]) : "бесплатно"}${x[3] ? `, срок ${x[3]} лет` : ""}`).join("<br>");
+  const i = +$("r-t").value, path = [];
+  for (let j = i; j >= 0; j = TREE[j][2]) path.unshift(TREE[j]);
+  const x = TREE[i], sum = path.reduce((a, p) => a + p[4], 0), lvl = Math.max(...path.map(p => p[3])), yrs = Math.max(0, ...path.map(p => p[6]));
+  $("r-res").innerHTML = `<span>Исследований до цели</span><b>${path.length}</b><span>Всего на исследования</span><b class="hi">${money(sum)}</b>` +
+    `<span>Купить на ноутбуке</span><b>${x[5] != null ? money(x[5]) : "нет данных"}</b>` +
+    `<span>Где продаётся</span><b>${tierTxt(lvl)}</b>` + (yrs ? `<span>Нужен тюремный срок</span><b>${yrs} лет</b>` : "");
+  $("r-path").innerHTML = path.map(p => `${p[1]} — ${p[4] ? money(p[4]) : "бесплатно"}${p[6] ? `, срок ${p[6]} лет` : ""}`).join(" → <br>");
+  const kids = TREE.filter(p => p[2] === i).map(p => p[1]);
+  $("r-next").innerHTML = kids.length ? "Открывает дальше: " + kids.join(", ") : "";
+  $("r-all").innerHTML = `<div class="res" style="grid-template-columns:1fr auto auto">` + `<span class="sub">Название</span><span class="sub">Исследование</span><span class="sub">Ноутбук</span>` +
+    TREE.filter(p => p[0] === x[0]).map(p => `<span>${p[1]}${p[3] >= 2 ? ` <span class="note" style="white-space:nowrap">р-н ${p[3]}</span>` : ""}${p[6] ? ` <span class="note" style="white-space:nowrap">⛓${p[6]}</span>` : ""}</span><b>${p[4] ? money(p[4]) : "—"}</b><b>${p[5] != null ? money(p[5]) : "—"}</b>`).join("") + `</div>`;
 }
-$("r-c").addEventListener("change", () => { fillTargets(); haptic(); });
-$("r-t").addEventListener("change", () => { plan(); haptic(); });
+$("r-c").addEventListener("change", () => { save("rBr", $("r-c").value); fillTargets(); haptic(); });
+$("r-t").addEventListener("change", () => { save("rT" + $("r-c").value, +$("r-t").value); plan(); haptic(); });
 
 /* ---------- Метки игроков (общие, живут 3 дня; ставить и голосовать — из Telegram) ---------- */
 const UK = {fence: ["#c6ef3a", "Скупщик здесь"], smug: ["#4fd1c5", "Контрабандист здесь"], cops: ["#4f8dff", "Засада копов"],
@@ -1173,12 +1176,12 @@ $("c-lvl").addEventListener("click", e => { const b = e.target.closest("[data-l]
 
 
 /* ---------- Таймеры (хранит и присылает бот) ---------- */
-const TK = {grow: {n: "🌿 Кусты", p: [60, 90, 120]}, react: {n: "⚗ Реактор", p: [53, 60]}, freeze: {n: "❄ Морозильник", p: [30, 60]}, own: {n: "⏱ Свой", p: [15, 30, 60]}};
+const TK = {grow: {n: "🌿 Кусты", p: [60, 53, 48, 40]}, react: {n: "⚗ Реактор", p: [53, 60]}, freeze: {n: "❄ Морозильник", p: [30, 60]}, own: {n: "⏱ Свой", p: [15, 30, 60]}};
 let tmK = "grow", tmM = 90, tmList = [], tmSkew = 0;
 const fmtMin = m => m >= 60 ? `${Math.floor(m / 60)} ч${m % 60 ? " " + (m % 60) + " мин" : ""}` : `${m} мин`;
 function renderTimerPick(){
   $("tm-k").innerHTML = Object.entries(TK).map(([k, x]) => `<button class="chip" data-k="${k}" aria-pressed="${k === tmK}">${x.n}</button>`).join("");
-  $("tm-d").innerHTML = TK[tmK].p.map(m => `<button class="chip" data-m="${m}" aria-pressed="${m === tmM && !$("tm-m").value}">${tmK === "react" ? (m === 53 ? "53 мин (II)" : "60 мин (I)") : fmtMin(m)}</button>`).join("");
+  $("tm-d").innerHTML = TK[tmK].p.map(m => `<button class="chip" data-m="${m}" aria-pressed="${m === tmM && !$("tm-m").value}">${tmK === "react" ? (m === 53 ? "53 мин (II)" : "60 мин (I)") : tmK === "grow" ? ({60: "60 мин (без улучш.)", 53: "53 мин (вентилятор)", 48: "48 мин (лампа)", 40: "40 мин (все три)"}[m] || fmtMin(m)) : fmtMin(m)}</button>`).join("");
 }
 function renderTimers(){
   const now = Date.now() + tmSkew;
@@ -1215,55 +1218,82 @@ $("tm-list").addEventListener("click", async e => { const b = e.target.closest("
 setInterval(() => { if (cur === "timer") renderTimers(); }, 30000);
 
 /* ---------- Доход плантации ---------- */
-// столы: [зелёные, фиолетовые, золотые] на каждом; 6 столов на комнату, до 2 комнат (лимит комнат на участок не подтверждён)
-let gTables = load("gTables", [[1, 4, 1], [6, 0, 0]]);
-if (!Array.isArray(gTables) || !gTables.length) gTables = [[1, 4, 1]];
+// стол: [зелёных, фиолетовых, золотых, вентилятор 0/1, насос 0/1, лампа 0/1]
+const UPG = [["🌀", "Вентилятор", 0.12, 25000, 100000], ["💧", "Насос", 0.14, 70000, 200000], ["🔆", "УФ-лампа", 0.24, 250000, 500000]];
+const BAGP = [4000, 6000, 8000], NOTO = {1: 0, 2: 10, 3: 20, 4: 35, 5: 50};
+const FREQ = [[0, "сразу"], [60, "раз в час"], [120, "раз в 2 ч"], [240, "раз в 4 ч"], [480, "раз в 8 ч"]];
+let gTables = load("gTables", [[1, 4, 1, 1, 0, 0], [6, 0, 0, 0, 0, 0]]);
+if (!Array.isArray(gTables) || !gTables.length) gTables = [[1, 4, 1, 0, 0, 0]];
+gTables = gTables.map(t => [0, 1, 2, 3, 4, 5].map(k => +t[k] || 0));
+let gFreq = load("gFreq", 0);
+$("g-noto").value = String(load("gNoto", 4));
+const cycleMin = t => 60 / (1 + UPG.reduce((a, u, k) => a + (t[3 + k] ? u[2] : 0), 0));
+const fmtCyc = m => { const mm = Math.floor(m), ss = Math.round((m - mm) * 60); return ss ? `${mm} мин ${ss} с` : `${mm} мин`; };
 function renderTables(){
   $("g-tables").innerHTML = gTables.map((t, i) => {
     const sum = t[0] + t[1] + t[2];
-    return `<div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;gap:6px;align-items:center;margin:4px 0">` +
-      `<b style="white-space:nowrap">Стол ${i + 1}</b>` +
-      ["🟢", "🟣", "🟡"].map((c, j) => `<label style="display:flex;align-items:center;gap:3px">${c}<input type="number" inputmode="numeric" min="0" max="6" value="${t[j]}" data-t="${i}" data-c="${j}" style="width:100%;min-width:0;padding:8px 6px"></label>`).join("") +
-      (gTables.length > 1 ? `<button class="chip" data-rm="${i}" style="padding:4px 10px">✕</button>` : `<span></span>`) +
-      `</div>` + (sum > 6 ? `<div class="note" style="color:var(--siren)">На столе ${i + 1} уже ${sum} кустов — максимум 6</div>` : "");
+    return `<div style="border:1px solid var(--line);border-radius:12px;padding:8px;margin:4px 0">` +
+      `<div style="display:grid;grid-template-columns:auto repeat(3,minmax(0,1fr)) auto;gap:5px;align-items:center">` +
+      `<b style="white-space:nowrap">№${i + 1}</b>` +
+      ["🟢", "🟣", "🟡"].map((c, j) => `<label style="display:flex;align-items:center;gap:2px;min-width:0">${c}<input type="number" inputmode="numeric" min="0" max="6" value="${t[j]}" data-t="${i}" data-c="${j}" style="width:100%;min-width:34px;padding:8px 2px;text-align:center;-moz-appearance:textfield"></label>`).join("") +
+      (gTables.length > 1 ? `<button class="chip" data-rm="${i}" style="padding:4px 10px">✕</button>` : `<span></span>`) + `</div>` +
+      `<div class="chips" style="margin-top:6px;align-items:center">` +
+      UPG.map((u, k) => `<button class="chip" data-up="${i}:${k}" aria-pressed="${!!t[3 + k]}" style="padding:5px 9px">${u[0]} ${u[1]} +${Math.round(u[2] * 100)}%</button>`).join("") +
+      `<span class="note" style="margin-left:auto">цикл ${fmtCyc(cycleMin(t))}</span></div>` +
+      (sum > 6 ? `<div class="note" style="color:var(--siren)">На столе ${i + 1} уже ${sum} кустов — максимум 6</div>` : "") + `</div>`;
   }).join("");
-  $("g-add").hidden = gTables.length >= 12;
+  $("g-add").hidden = gTables.length >= 24;
+  $("g-freq").innerHTML = FREQ.map(f => `<button class="chip" data-f="${f[0]}" aria-pressed="${f[0] === gFreq}">${f[1]}</button>`).join("");
 }
+const gSave = () => { save("gTables", gTables); };
 $("g-tables").addEventListener("input", e => {
   const x = e.target.closest("[data-t]"); if (!x) return;
   gTables[+x.dataset.t][+x.dataset.c] = Math.max(0, Math.min(6, Math.round(+x.value || 0)));
-  save("gTables", gTables); grow();
+  gSave(); grow();
 });
-$("g-tables").addEventListener("change", renderTables);   // предупреждение «больше 6» обновляем, когда поле отпустили
-$("g-tables").addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (!b) return; gTables.splice(+b.dataset.rm, 1); save("gTables", gTables); haptic(); renderTables(); grow(); });
-$("g-add").addEventListener("click", () => { if (gTables.length >= 12) return; gTables.push([6, 0, 0]); save("gTables", gTables); haptic(); renderTables(); grow(); });
+$("g-tables").addEventListener("change", renderTables);
+$("g-tables").addEventListener("click", e => {
+  const rm = e.target.closest("[data-rm]"), up = e.target.closest("[data-up]");
+  if (rm) { gTables.splice(+rm.dataset.rm, 1); }
+  else if (up) { const [i, k] = up.dataset.up.split(":").map(Number); gTables[i][3 + k] = gTables[i][3 + k] ? 0 : 1; }
+  else return;
+  gSave(); haptic(); renderTables(); grow();
+});
+$("g-add").addEventListener("click", () => { if (gTables.length >= 24) return; gTables.push([6, 0, 0, 0, 0, 0]); gSave(); haptic(); renderTables(); grow(); });
+$("g-all").addEventListener("click", () => { const all = gTables.every(t => t[3] && t[4] && t[5]); gTables.forEach(t => { t[3] = t[4] = t[5] = all ? 0 : 1; }); gSave(); haptic(); renderTables(); grow(); });
+$("g-freq").addEventListener("click", e => { const b = e.target.closest("[data-f]"); if (!b) return; gFreq = +b.dataset.f; save("gFreq", gFreq); haptic(); renderTables(); grow(); });
+$("g-noto").addEventListener("input", () => { save("gNoto", +$("g-noto").value); grow(); });
+["g-hrs", "g-own"].forEach(id => $(id).addEventListener("input", grow));
 
 function grow(){
-  const tables = gTables, t = tables.length;
-  const cu = tables.reduce((a, x) => a + x[0], 0), ce = tables.reduce((a, x) => a + x[1], 0), cl = tables.reduce((a, x) => a + x[2], 0);
-  const over = tables.findIndex(x => x[0] + x[1] + x[2] > 6);
+  const t = gTables.length;
+  const over = gTables.findIndex(x => x[0] + x[1] + x[2] > 6);
   if (over >= 0) { $("g-res").innerHTML = `<span>Стол ${over + 1}: больше 6 кустов</span><b class="hi">убавь</b>`; return; }
-  const total = cu + ce + cl, free = t * 6 - total;
+  const cnt = [0, 1, 2].map(j => gTables.reduce((a, x) => a + x[j], 0)), total = cnt[0] + cnt[1] + cnt[2];
   if (!total) { $("g-res").innerHTML = `<span>Кустов нет</span><b>укажи хотя бы один</b>`; return; }
-  const bagsValue = cu * 4000 + ce * 6000 + cl * 8000;          // стоимость «одного пакета с каждого куста»
-  const rooms = Math.ceil(t / 6), min = bagsValue * 2, avg = bagsValue * 3, max = bagsValue * 4;
-  const setup = 150000 + 100000 * rooms + 30000 + 40000 * t;   // исследования один раз, покупка — за каждую комнату и стол
-  const pb = Math.ceil(setup / avg);
-  const gt = Math.max(10, Math.min(720, +$("g-time").value || 90)), hrs = Math.max(1, Math.min(24, +$("g-hrs").value || 6));
-  const perHour = avg * 60 / gt, perDay = perHour * hrs, perWeek = perDay * 7;
-  $("g-res").innerHTML = `<span>Столов</span><b>${t}${rooms > 1 ? ` (${rooms} комнаты)` : ""}</b>` +
-    `<span>Всего кустов</span><b>🟢${cu} 🟣${ce} 🟡${cl}${free ? ` · свободно ${free}` : ""}</b>` +
-    `<span>Пакет у скупщика</span><b>🟢4к · 🟣6к · 🟡8к</b>` +
-    `<span>За один сбор</span><b>${money(min)} – ${money(max)}</b>` +
-    `<span>В среднем за сбор</span><b class="hi">${money(avg)}</b><span>Вложения (комната + столы)</span><b>${money(setup)}</b>` +
-    `<span>Окупится за</span><b>≈${pb} ${pb === 1 ? "сбор" : pb < 5 ? "сбора" : "сборов"} (≈${String(Math.ceil(setup / perHour * 10) / 10).replace(".", ",")} ч)</b>` +
+  const bonus = 1 + NOTO[+$("g-noto").value || 1] / 100, hrs = Math.max(1, Math.min(24, +$("g-hrs").value || 6));
+  let perHour = 0, bagsHour = 0, perHarvest = 0;
+  gTables.forEach(x => {
+    const c = cycleMin(x), period = gFreq ? (gFreq >= c ? gFreq : Math.ceil(c / gFreq) * gFreq) : c;   // созревший куст ждёт сбора
+    const bags = (x[0] + x[1] + x[2]) * 3, val = (x[0] * BAGP[0] + x[1] * BAGP[1] + x[2] * BAGP[2]) * 3 * bonus;
+    perHour += val * 60 / period; bagsHour += bags * 60 / period; perHarvest += val;
+  });
+  const rooms = Math.ceil(t / 6);
+  const used = [0, 1, 2].map(k => gTables.filter(x => x[3 + k]).length);
+  const resUpg = used[2] ? UPG[0][4] + UPG[1][4] + UPG[2][4] : used[1] ? UPG[0][4] + UPG[1][4] : used[0] ? UPG[0][4] : 0;   // исследования идут цепочкой
+  const setup = $("g-own").checked ? 0 : 150000 + 100000 * rooms + 30000 + 40000 * t + resUpg + used.reduce((a, n, k) => a + n * UPG[k][3], 0);
+  const perDay = perHour * hrs + (hrs < 24 ? perHarvest : 0), perWeek = perDay * 7;   // + урожай, созревший пока тебя не было
+  $("g-res").innerHTML = `<span>Столов</span><b>${t}${rooms > 1 ? ` (${rooms} плантации)` : ""}</b>` +
+    `<span>Кустов</span><b>🟢${cnt[0]} 🟣${cnt[1]} 🟡${cnt[2]}${t * 6 - total ? ` · свободно ${t * 6 - total}` : ""}</b>` +
+    `<span>Пакет у скупщика</span><b>${["🟢", "🟣", "🟡"].map((c, j) => c + String(Math.round(BAGP[j] * bonus / 100) / 10).replace(".", ",") + "к").join(" · ")}</b>` +
+    `<span>За один урожай</span><b>${money(perHarvest * 2 / 3)} – ${money(perHarvest * 4 / 3)}</b>` +
+    `<span>Пакетов в час</span><b>${String(Math.round(bagsHour * 10) / 10).replace(".", ",")}</b>` +
     `<span>💵 Доход в час</span><b class="hi">${money(perHour)}</b>` +
     `<span>💵 В день (${hrs} ч в игре)</span><b class="hi">${money(perDay)}</b>` +
     `<span>💵 За неделю до вайпа</span><b class="hi">${money(perWeek)}</b>` +
-    (free ? `<span>Если добить пустые места зелёными</span><b>+${money(free * 4000 * 3)} за сбор</b>` : "");
+    (setup ? `<span>Вложения</span><b>${money(setup)}</b><span>Окупится за</span><b>≈${String(Math.ceil(setup / perHour * 10) / 10).replace(".", ",")} ч игры</b>` : `<span>Вложения</span><b>уже куплено</b>`);
 }
-["g-time", "g-hrs"].forEach(id => $(id).addEventListener("input", grow));
-renderTables();
+renderTables(); grow();
 grow();
 
 /* ---------- Навигация ---------- */
