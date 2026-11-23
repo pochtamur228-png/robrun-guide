@@ -114,6 +114,9 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 .citem img{width:58px;height:58px;object-fit:contain}.citem b{font-size:12.5px;line-height:1.2}.citem span{color:var(--muted)}
 .dhead{display:flex;gap:12px;align-items:center}.dhead img{width:96px;height:96px;object-fit:contain;border-radius:12px;background:var(--bg2);border:2px solid var(--rc)}
 .vbar{height:7px;border-radius:4px;background:var(--line);overflow:hidden}.vbar i{display:block;height:100%;background:var(--lime)}
+.tbl{width:100%;border-collapse:collapse;font-size:12.5px}.tbl th{color:var(--muted);font-weight:600;text-align:right;padding:4px 3px;cursor:pointer;white-space:nowrap}.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td{padding:5px 3px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}.tbl td img{width:34px;height:22px;object-fit:contain;vertical-align:middle;margin-right:4px}.tbl tr.me td{background:rgba(198,239,58,.08)}
+.slot{width:44px;height:44px;border-radius:10px;border:1px dashed var(--line);background:var(--bg2);display:inline-grid;place-items:center;margin:2px;cursor:pointer;padding:0}.slot img{width:36px;height:36px;object-fit:contain}
 .vgrid{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;align-items:center;font-size:13px}
 .tipimg{display:flex;gap:6px;overflow-x:auto;margin:6px 0}.tipimg img{height:150px;border-radius:10px;flex:none}
 #rm-stage{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
@@ -174,7 +177,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
 
   <!-- ===== ВЕЩИ ===== -->
   <section id="v-items" hidden>
-    <div class="chips" id="it-mode"><button class="chip" data-mode="all" aria-pressed="true">📦 Все предметы · 538</button><button class="chip" data-mode="veh" aria-pressed="false">🚗 Транспорт · 11</button><button class="chip" data-mode="stats" aria-pressed="false">📊 Оружие: урон и магазин</button></div>
+    <div class="chips" id="it-mode"><button class="chip" data-mode="all" aria-pressed="true">📦 Все предметы · 538</button><button class="chip" data-mode="veh" aria-pressed="false">🚗 Транспорт · 11</button><button class="chip" data-mode="loot" aria-pressed="false">💰 Выгодно нести</button><button class="chip" data-mode="keys" aria-pressed="false">🔑 Ключи</button><button class="chip" data-mode="guns" aria-pressed="false">🔫 Сравнение оружия</button><button class="chip" data-mode="stats" aria-pressed="false">📋 Таблицы</button></div>
     <div id="cat-box" style="margin-top:10px">
       <input type="search" id="cat-q" placeholder="Поиск: RC 5.56, сейф, ключ-карта…" autocomplete="off" style="width:100%">
       <div class="chips" id="cat-c" style="margin-top:8px"></div>
@@ -184,6 +187,9 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <p class="note">Данные о предметах и иконки — robrun.pro (по их словам — из файлов игры). «Цена» — базовая цена в игре: у скупщика её поднимает известность.</p>
     </div>
     <div id="veh-box" hidden style="margin-top:10px"></div>
+    <div id="loot-box" hidden style="margin-top:10px"></div>
+    <div id="keys-box" hidden style="margin-top:10px"></div>
+    <div id="guns-box" hidden style="margin-top:10px"></div>
     <div id="stats-box" hidden>
     <div class="chips" id="it-chips" style="margin-top:10px"></div>
     <div class="list" id="it-list" style="margin-top:10px"></div>
@@ -328,6 +334,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <div class="res" id="d-res"></div>
       <p class="note">Цифры защиты и предохранителей — по данным игроков <span class="tag rumor">не подтверждено</span>. Чужой сейф дешифратор не открывает — нужен мастер-ключ.</p>
     </div>
+    <div class="card" id="bb-card"><h3>🏗 Конструктор базы</h3><p class="sub">Собери базу: основное строение и постройки. Нажимай на клетку, чтобы сменить мебель. Посчитаю места, защиту и цену.</p><div id="bb"></div></div>
     <div class="card">
       <h3>🌳 Планировщик прокачки: 171 поставка</h3>
       <p class="sub">Выбери ветку и цель — посчитаю всю цепочку исследований до неё, цену на ноутбуке, уровень района и нужный срок.</p>
@@ -367,6 +374,7 @@ mark{background:color-mix(in srgb,var(--cash) 35%,transparent);color:inherit;bor
       <div id="tm-list"></div>
       <p class="note">Kefir не публикует время роста и варки — ставь то, что видишь у себя в игре. Куст — 60 мин без улучшений, 40 мин со всеми тремя; реактор I ≈60 мин, реактор II — 53.</p>
     </div>
+    <div class="card" id="lab-card"><h3>⚗ Доход химлабы</h3><div id="lab"></div></div>
     <div class="card">
       <h3>🌿 Доход плантации</h3>
       <p class="sub">Цикл куста — <b>60 минут</b> для любой редкости. Улучшения стола ускоряют рост и складываются: 🌀 вентилятор +12%, 💧 насос +14%, 🔆 УФ-лампа +24% (все три — цикл 40 мин). Созревший куст ждёт, пока его соберут.</p>
@@ -766,6 +774,7 @@ const HEISTS = [
 const LOSE = ["Участки, базы и всё на них", "Оружие", "Вся наличка", "<b>Деньги в банке</b>", "Груз на складах", "Машины <span class='tag rumor'>?</span>"];
 const KEEP = ["Косметика, ник, настройки", "<b>Тюремный срок</b>", "<b>Авторитет</b> и тату", "B-Coin"];
 const NEWS = [
+  {v:23, t:"23.11.2026", items:["Вещи → «💰 Выгодно нести»: сколько даст скупщик за клетку сумки, с выбором сумки и известности.", "Вещи → «🔑 Ключи»: все ключи и ключ-карты, что открывают, где найти, кнопка «на карте».", "Вещи → «🔫 Сравнение оружия»: урон, скорострельность, урон/с, магазин, дальность и сколько попаданий до убийства в разной броне.", "Счёт → «🏗 Конструктор базы»: постройки, сейфы, стеллажи, места под груз, предохранители и цена.", "Таймер → «⚗ Доход химлабы»: навар с канистры и в час.", "Карточка предмета: цена продажи скупщику (40% от базовой)."]},
   {v:22, t:"22.11.2026", items:["Исправлено: нижнее меню обрезалось (после прошлого обновления) и не учитывало край экрана iPhone в Telegram."]},
   {v:21, t:"22.11.2026", items:["Вещи: каталог всех 538 предметов с иконками — цена, редкость, размер, где найти, поиск и фильтры; из карточки — сразу в планировщик прокачки.", "Вещи → Транспорт: все 11 машин — скорость, разгон, управление, багажник, грузы, цены.", "Гайд → «🎮 Из игры»: 39 тем из внутриигрового справочника с картинками.", "Карта → «🏢 Локации»: список всех мест с фото и лутом, нажатие показывает место на карте."]},
   {v:20, t:"22.11.2026", items:["Настоящие карты: Looty Bay, Штат, Мотель Ленни, Центр сбыта и Тюрьма — с приближением пальцами.", "Больше 1000 меток: скупщики, контрабандисты, банкоматы, парковки, сейфы, груз, кассы, двери под ключ-карту, камеры, лут — слои включаются кнопками.", "Нажми на здание — фото и что там можно найти. Старая схема с метками игроков — вкладка «Метки игроков»."]},
@@ -1213,6 +1222,7 @@ function catFilter(){
 }
 async function renderCat(){
   if (!(await loadCat())) return;
+  loadExt();
   const cnt = {}; CAT.items.forEach(x => cnt[x[1]] = (cnt[x[1]] || 0) + 1);
   $("cat-c").innerHTML = `<button class="chip" data-c="all" aria-pressed="${catC === "all"}">Все · ${CAT.items.length}</button>` +
     Object.entries(CAT.cats).map(([k, n]) => `<button class="chip" data-c="${k}" aria-pressed="${catC === k}">${n} · ${cnt[k] || 0}</button>`).join("");
@@ -1221,6 +1231,18 @@ async function renderCat(){
   $("cat-grid").innerHTML = list.slice(0, catLim).map(x => `<button class="citem" data-id="${x[0]}" style="--rc:${x[6]}">${x[3] ? `<img src="${icoUrl(x[3])}" alt="" loading="lazy">` : "📦"}<b>${x[2]}</b><span>${x[8] ? money(x[8]) : "—"}</span></button>`).join("") ||
     `<p class="note" style="grid-column:1/-1">Ничего не нашлось.</p>`;
   $("cat-more").hidden = list.length <= catLim; $("cat-more").textContent = `Показать ещё (${list.length - catLim})`;
+}
+function extRows(id){
+  const e = EXT && EXT[id]; if (!e) return "";
+  const n = v => String(v).replace(".", ","), w = e.weapon, a = e.armor;
+  return (e.sell ? `<span>Продать скупщику</span><b>${money(e.sell)} <span class="note">(40%, + известность)</span></b>` : "") +
+    (e.unlock ? `<span>Открыть в поставках</span><b>${money(e.unlock)}${e.lvl ? ` · ${e.lvl}` : ""}</b>` : "") +
+    (e.smug ? `<span>Контрабандист платит</span><b class="hi">${money(e.smug)}</b><span>Коп за изъятие</span><b>${money(e.seize || 0)}</b>` : "") +
+    (e.todo ? `<span>Что делать</span><b style="white-space:normal">${e.todo}</b>` : "") + (e.get ? `<span>Где взять</span><b style="white-space:normal">${e.get}</b>` : "") +
+    (w ? `<span>Урон</span><b>${n(w.dmg)}${w.head ? ` (в голову ×${n(w.head)})` : ""}</b><span>Скорострельность</span><b>${w.rpm || "—"} выстр/мин</b><span>Урон в секунду</span><b>${w.dps || "—"}</b>` +
+      `<span>Магазин</span><b>${w.mag || "—"}</b><span>Дальность полного урона</span><b>${w.range ? w.range + " м" : "—"}</b><span>Перезарядка</span><b>${w.reload ? n(w.reload) + " с" : "—"}</b>${w.ammo ? `<span>Патроны</span><b style="white-space:normal">${w.ammo}</b>` : ""}` : "") +
+    (Array.isArray(a) ? `<span>Броня</span><b>${a[0]}${a[1] ? ` (${a[1]} сегм. по ${a[2]})` : ""}</b>` : "") + (e.durability ? `<span>Прочность</span><b>${e.durability}</b>` : "") +
+    (e.bag ? `<span>Место в сумке</span><b>+${e.bag} клеток</b>` : "") + (e.opens ? `<span>Открывает</span><b style="white-space:normal">${e.opens}</b>` : "");
 }
 function catDetail(id){
   const x = CAT.items.find(i => i[0] === id); if (!x) return;
@@ -1233,8 +1255,8 @@ function catDetail(id){
     <div class="dhead" style="--rc:${col}">${ic ? `<img src="${icoUrl(ic)}" alt="">` : ""}<div><h3 style="margin:0">${n}</h3><span style="color:${col}">● ${RAR[col] || ""}</span>${sub ? ` <span class="tag">${sub}</span>` : ""}</div></div>
     ${d ? `<p>${d}</p>` : ""}
     <div class="res">${pr ? `<span>Цена</span><b class="hi">${money(pr)}</b>` : ""}${sz ? `<span>Размер в инвентаре</span><b>${sz[0]}×${sz[1]} клеток</b>` : ""}
-      ${pr && sz ? `<span>Цена за клетку</span><b>${money(pr / (sz[0] * sz[1]))}</b>` : ""}<span>Покупается на ноутбуке</span><b>${buy ? "да" : "нет"}</b>${research}</div>
-    ${where.length ? `<p class="sub" style="margin-top:8px"><b>Где найти:</b> ${where.join(", ")}</p>` : ""}
+      ${pr && sz ? `<span>Цена за клетку</span><b>${money(pr / (sz[0] * sz[1]))}</b>` : ""}<span>Покупается на ноутбуке</span><b>${buy ? "да" : "нет"}</b>${research}${extRows(id)}</div>
+    ${(EXT && EXT[id] && EXT[id].where && EXT[id].where.length) ? `<p class="sub" style="margin-top:8px"><b>Где найти:</b><br>${EXT[id].where.join("<br>")}</p>` : where.length ? `<p class="sub" style="margin-top:8px"><b>Где найти:</b> ${where.join(", ")}</p>` : ""}
     ${ti >= 0 ? `<button class="btn ghost" id="cat-plan" data-ti="${ti}" style="width:100%;margin-top:8px">🌳 Открыть в планировщике прокачки</button>` : ""}`;
   $("cat-d").hidden = false; haptic();
 }
@@ -1277,10 +1299,155 @@ function renderVeh(){
 function itShow(m){
   itMode = m; save("itMode", m);
   document.querySelectorAll("#it-mode .chip").forEach(c => c.setAttribute("aria-pressed", c.dataset.mode === m));
-  $("cat-box").hidden = m !== "all"; $("veh-box").hidden = m !== "veh"; $("stats-box").hidden = m !== "stats";
-  if (m === "all") renderCat(); if (m === "veh") renderVeh(); if (m === "stats") renderItems();
+  ["all:cat-box", "veh:veh-box", "stats:stats-box", "loot:loot-box", "keys:keys-box", "guns:guns-box"].forEach(x => { const [k, id] = x.split(":"); $(id).hidden = m !== k; });
+  if (m === "all") renderCat(); if (m === "veh") renderVeh(); if (m === "stats") renderItems(); if (m === "loot") renderLoot(); if (m === "keys") renderKeys(); if (m === "guns") renderGuns();
 }
 $("it-mode").addEventListener("click", e => { const b = e.target.closest("[data-mode]"); if (b) { haptic(); itShow(b.dataset.mode); } });
+
+
+/* ---------- Расширенные данные предметов (страницы robrun.pro) ---------- */
+let EXT = null;
+async function loadExt(){ if (EXT) return EXT; await loadCat(); try { EXT = (await (await fetch("assets/data/items_ext.json")).json()).ext; } catch (e) { EXT = {}; } return EXT; }
+const itemById = id => CAT && CAT.items.find(x => x[0] === id);
+const NOTO_B = {1: 0, 2: 10, 3: 20, 4: 35, 5: 50};
+
+/* ---------- 💰 Что выгоднее нести ---------- */
+function lootFill(rows, cap){ let left = cap, sum = 0; for (const r of rows.slice(0, 10)) { if (r.cells <= left) { left -= r.cells; sum += r.sell; } } return sum; }
+let lootBag = load("lootBag", 24), lootNoto = load("lootNoto", 4), lootCat = load("lootCat", "valuables");
+async function renderLoot(){
+  if (!(await loadExt())) return;
+  const bonus = 1 + NOTO_B[lootNoto] / 100;
+  const rows = CAT.items.map(x => { const e = EXT[x[0]] || {}, sz = x[9]; if (!e.sell || !sz) return null; const cells = sz[0] * sz[1];
+      return {x, sell: e.sell * bonus, cells, per: e.sell * bonus / cells}; })
+    .filter(r => r && (lootCat === "all" || r.x[1] === lootCat)).sort((a, b) => b.per - a.per);
+  const best = rows[0];
+  $("loot-box").innerHTML = `<div class="card"><h3>💰 Что выгоднее нести</h3>
+    <p class="sub">Сумка не бесконечная: считаем, сколько даст скупщик за <b>одну клетку</b> инвентаря. Скупщик платит 40% от базовой цены, известность добавляет сверху.</p>
+    <div class="grid2"><label><span class="sub">Сумка</span><select id="lb-bag">${[[12, "+12 (обычная)"], [24, "+24 (эпическая)"], [36, "+36 (легенд.)"]].map(b => `<option value="${b[0]}"${b[0] === lootBag ? " selected" : ""}>${b[1]}</option>`).join("")}</select></label>
+    <label><span class="sub">Известность</span><select id="lb-noto">${[1, 2, 3, 4, 5].map(l => `<option value="${l}"${l === lootNoto ? " selected" : ""}>Ур. ${l} (+${NOTO_B[l]}%)</option>`).join("")}</select></label></div>
+    <div class="chips" id="lb-cat">${[["valuables", "💎 Ценности"], ["contraband", "🌿 Контрабанда"], ["misc", "🧩 Разное"], ["all", "Всё"]].map(c => `<button class="chip" data-lc="${c[0]}" aria-pressed="${c[0] === lootCat}">${c[1]}</button>`).join("")}</div>
+    ${best ? `<div class="res"><span>Лучшее на клетку</span><b class="hi">${best.x[2]} — ${money(best.per)}</b><span>Твоя сумка</span><b>+${lootBag} клеток</b><span>Сумка, набитая топ-10 из списка (по 1 шт.)</span><b class="hi">≈ ${money(lootFill(rows, lootBag))}</b></div>` : ""}
+    <table class="tbl" style="margin-top:6px"><tr><th>Предмет</th><th>Скупщик</th><th>Клеток</th><th>За клетку</th></tr>
+    ${rows.slice(0, 60).map(r => `<tr data-id="${r.x[0]}"><td>${r.x[3] ? `<img src="${icoUrl(r.x[3])}" alt="">` : ""}<span style="color:${r.x[6]}">●</span> ${r.x[2]}</td><td>${money(r.sell)}</td><td>${r.cells}</td><td><b>${money(r.per)}</b></td></tr>`).join("")}</table>
+    <p class="note">Цены — robrun.pro (из файлов игры). Груз (ящики, статуи, сейфы) в сумку не кладётся — его несут в руках или в багажнике, поэтому его здесь нет.</p></div>`;
+  $("lb-bag").onchange = e => { lootBag = +e.target.value; save("lootBag", lootBag); renderLoot(); };
+  $("lb-noto").onchange = e => { lootNoto = +e.target.value; save("lootNoto", lootNoto); renderLoot(); };
+  $("lb-cat").onclick = e => { const b = e.target.closest("[data-lc]"); if (!b) return; lootCat = b.dataset.lc; save("lootCat", lootCat); haptic(); renderLoot(); };
+  $("loot-box").querySelector(".tbl").onclick = e => { const tr = e.target.closest("[data-id]"); if (tr) catDetail(tr.dataset.id); };
+}
+
+/* ---------- 🔑 Ключи ---------- */
+async function renderKeys(){
+  if (!(await loadExt())) return;
+  if (!RM) { try { RM = await (await fetch("assets/maps/points.json")).json(); } catch (e) {} }
+  const keys = CAT.items.filter(x => x[1] === "tools" && /ключ|карта|key/i.test(x[2] + " " + x[0]) && !/мастер|master|отмычк|lockpick/i.test(x[2] + x[0]));
+  const locByName = {}; if (RM) Object.entries(RM.locs).forEach(([id, L]) => locByName[L.n] = id);
+  $("keys-box").innerHTML = `<div class="card"><h3>🔑 Все ключи и что они открывают</h3><p class="sub">${keys.length} ключей и ключ-карт. Нажми «📍», чтобы увидеть место на карте.</p></div>` +
+    keys.map(x => { const e = EXT[x[0]] || {}, opens = e.opens || "", lid = locByName[opens];
+      return `<div class="card" style="flex-direction:row;gap:10px;align-items:center">${x[3] ? `<img src="${icoUrl(x[3])}" alt="" style="width:48px;height:48px;object-fit:contain;flex:none">` : ""}
+        <div style="flex:1;min-width:0"><b><span style="color:${x[6]}">●</span> ${x[2]}</b><br><span class="sub">${x[7]}</span>
+        ${e.where && e.where.length ? `<br><span class="note">Где найти: ${e.where.slice(0, 3).join("; ")}</span>` : ""}${e.sell ? `<br><span class="note">Скупщик: ${money(e.sell)}</span>` : ""}</div>
+        ${lid ? `<button class="chip" data-kloc="${lid}" style="flex:none">📍</button>` : ""}</div>`; }).join("");
+  $("keys-box").onclick = e => { const b = e.target.closest("[data-kloc]"); if (b) { haptic(); showLocOnMap(b.dataset.kloc); } };
+}
+function showLocOnMap(lid){
+  show("map");
+  const go = () => { const city = RM.maps.find(m => m.id === "city"), i = city.pts.findIndex(q => q[4] === lid); if (i < 0) return;
+    document.querySelector('#map-tabs [data-m="r:city"]').click();
+    setTimeout(() => { rmS = 4; const q = rmCur.pts[i], box = $("mb-real"); rmTx = box.clientWidth / 2 - rmCur.w * rmFit * q[0] / 100 * rmS; rmTy = box.clientHeight / 2 - rmCur.h * rmFit * q[1] / 100 * rmS; rmApply(); rmInfo(i); $("mb-real").scrollIntoView({behavior: "smooth", block: "start"}); }, 450); };
+  RM ? go() : fetch("assets/maps/points.json").then(r => r.json()).then(d => { RM = d; go(); });
+}
+
+/* ---------- 🔫 Сравнение оружия ---------- */
+let gunSort = load("gunSort", "dps"), gunArm = load("gunArm", "vest2_m1"), gunHp = load("gunHp", 100);
+async function renderGuns(){
+  if (!(await loadExt())) return;
+  const arms = [["", "Без брони", 0, 0], ...["vest1_m1", "vest2_m1", "vest3_m1", "vest4_m1", "vest5_m1"].map(id => { const it = itemById(id), a = (EXT[id] || {}).armor || [0]; return [id, it ? it[2] : id, a[0], id === "vest5_m1" ? 25 : 0]; })];
+  const A = arms.find(a => a[0] === gunArm) || arms[0], hp = Math.max(1, gunHp);
+  const rows = CAT.items.filter(x => x[1] === "weapons" && EXT[x[0]] && EXT[x[0]].weapon).map(x => {
+    const w = EXT[x[0]].weapon, dmgHp = w.dmg * (1 - A[3] / 100), shots = A[2] / w.dmg + hp / dmgHp, n = Math.ceil(shots - 1e-9);
+    const ttk = (n - 1) * 60 / (w.rpm || 1), need = n > (w.mag || 999);
+    return {x, w, n, ttk, need};
+  });
+  const key = {dps: r => -(r.w.dps || 0), dmg: r => -r.w.dmg, rpm: r => -(r.w.rpm || 0), mag: r => -(r.w.mag || 0), range: r => -(r.w.range || 0), reload: r => r.w.reload || 99, ttk: r => r.ttk}[gunSort] || (r => -(r.w.dps || 0));
+  rows.sort((a, b) => key(a) - key(b));
+  const th = (k, t) => `<th data-gs="${k}"${gunSort === k ? ' style="color:var(--lime)"' : ""}>${t}${gunSort === k ? " ▾" : ""}</th>`;
+  $("guns-box").innerHTML = `<div class="card"><h3>🔫 Сравнение оружия</h3>
+    <p class="sub">Нажми на заголовок столбца, чтобы отсортировать. «До убийства» — сколько попаданий в тело и за сколько секунд стрельбы без промахов убьёшь цель.</p>
+    <div class="grid2"><label><span class="sub">Броня цели</span><select id="gn-arm">${arms.map(a => `<option value="${a[0]}"${a[0] === A[0] ? " selected" : ""}>${a[1]}${a[2] ? ` (${a[2]})` : ""}</option>`).join("")}</select></label>
+    <label><span class="sub">Здоровье цели</span><input type="number" id="gn-hp" inputmode="numeric" value="${hp}" min="1" max="500"></label></div>
+    <div style="overflow-x:auto"><table class="tbl"><tr><th>Оружие</th>${th("dmg", "Урон")}${th("rpm", "Выстр/мин")}${th("dps", "Урон/с")}${th("mag", "Магазин")}${th("range", "Дальн.")}${th("reload", "Перезар.")}${th("ttk", "До убийства")}</tr>
+    ${rows.map(r => `<tr data-id="${r.x[0]}"><td>${r.x[3] ? `<img src="${icoUrl(r.x[3])}" alt="">` : ""}${r.x[2]}</td><td>${r.w.dmg}${r.w.head ? `<span class="note"> ×${String(r.w.head).replace(".", ",")}</span>` : ""}</td><td>${r.w.rpm || "—"}</td><td><b>${r.w.dps || "—"}</b></td><td>${r.w.mag || "—"}</td><td>${r.w.range ? r.w.range + " м" : "—"}</td><td>${r.w.reload ? String(r.w.reload).replace(".", ",") + " с" : "—"}</td>
+      <td><b>${r.n}</b> · ${String(Math.round(r.ttk * 100) / 100).replace(".", ",")} с${r.need ? " ⚠" : ""}</td></tr>`).join("")}</table></div>
+    <p class="note">Характеристики — robrun.pro (из файлов игры). «До убийства» — оценка: броня считается как запас очков, который снимается первым${A[3] ? `, «Бастион» режет урон по здоровью на ${A[3]}%` : ""}; здоровье по умолчанию 100 <span class="tag rumor">не подтверждено</span>. ⚠ — не хватит одного магазина. Выстрел в голову умножает урон (×1,5 и т. п.).</p></div>`;
+  $("gn-arm").onchange = e => { gunArm = e.target.value; save("gunArm", gunArm); renderGuns(); };
+  $("gn-hp").onchange = e => { gunHp = Math.max(1, +e.target.value || 100); save("gunHp", gunHp); renderGuns(); };
+  $("guns-box").querySelector(".tbl").onclick = e => { const h = e.target.closest("[data-gs]"); if (h) { gunSort = h.dataset.gs; save("gunSort", gunSort); haptic(); renderGuns(); return; } const tr = e.target.closest("[data-id]"); if (tr) catDetail(tr.dataset.id); };
+}
+
+
+/* ---------- 🏗 Конструктор базы (места и защита — robrun.pro / wikily.gg, цены — базовые цены покупки) ---------- */
+// [id, название, мест под тумбы/сейфы, мест под стеллажи, верстаков для груза, защита, слотов предохранителей, цена, основное?]
+const BBLD = [["home_1", "Трейлер", 2, 1, 1, 5, 9, 1e4, 1], ["home_2", "Небольшой дом", 7, 2, 2, 15, 27, 6e5, 1], ["home_3", "Особняк", 7, 5, 3, 30, 42, 1.5e6, 1],
+  ["car_garage_1", "Автогараж", 2, 1, 0, 4, 6, 2.5e4, 0], ["car_garage_2", "Большой автогараж", 2, 2, 0, 6, 12, 7e4, 0], ["storage_building_1", "Склад", 6, 7, 0, 10, 15, 1e5, 0],
+  ["workshop_building_1", "Мастерская", 2, 4, 4, 5, 9, 7.5e4, 0], ["narco_farm_1", "Плантация", 1, 2, 0, 5, 9, 1e5, 0], ["meth_lab_1", "Химлаборатория", 0, 1, 0, 3, 6, 1.1e5, 0]];
+// мебель: [id, название, цена, мест под груз (стеллажи), под замком (нужен мастер-ключ)]
+const BST = [["", "пусто", 0, 0, 0], ["storage_4", "Малая тумба", 4000, 0, 0], ["storage_5", "Средняя тумба", 29200, 0, 0], ["storage_6", "Большая тумба", 45400, 0, 0],
+  ["storage_1", "Малый сейф", 32000, 0, 1], ["storage_2", "Средний сейф", 68000, 0, 1], ["storage_3", "Большой сейф", 127000, 0, 1]];
+const BRK = [["", "пусто", 0, 0, 0], ["shelving_1", "Малый стеллаж", 3500, 6, 0], ["shelving_2", "Средний стеллаж", 26500, 9, 0], ["shelving_3", "Большой стеллаж", 46500, 12, 0],
+  ["shelving_4", "Малый стеллаж-клетка", 30300, 6, 1], ["shelving_5", "Средний стеллаж-клетка", 70000, 9, 1], ["shelving_6", "Большой стеллаж-клетка", 132000, 12, 1]];
+let BB = load("bb", {main: "home_2", out: [["storage_building_1", [], []]], m: [[], []]});
+const bbB = id => BBLD.find(b => b[0] === id);
+function bbAll(){ return [[BB.main, BB.m[0], BB.m[1]], ...BB.out]; }
+function renderBB(){
+  const all = bbAll(); let cargo = 0, locked = 0, st = 0, stMax = 0, rk = 0, rkMax = 0, benches = 0, fuses = 0, pBld = 0, pFur = 0, safes = 0;
+  const html = all.map((b, bi) => { const B = bbB(b[0]); if (!B) return "";
+    pBld += B[7]; fuses += B[6]; benches += B[4]; stMax += B[2]; rkMax += B[3];
+    const cell = (arr, T, k, j, kind) => { const t = T[arr[j] || 0]; if (arr[j]) { pFur += t[2]; if (kind === "s") { st++; if (t[4]) safes++; } else { rk++; cargo += t[3]; if (t[4]) locked += t[3]; } }
+      return `<button class="slot" data-b="${bi}" data-k="${kind}" data-j="${j}" title="${t[1]}">${t[0] ? `<img src="${icoUrl(t[0])}" alt="">` : "＋"}</button>`; };
+    return `<div style="border:1px solid var(--line);border-radius:12px;padding:8px;margin:6px 0"><div class="row" style="justify-content:space-between"><b>${B[1]}</b><span class="note">🛡 ${B[5]} · предохр. ${B[6]}${B[4] ? ` · верстаков ${B[4]}` : ""}</span>${bi ? `<button class="chip" data-rmb="${bi}" style="padding:2px 9px">✕</button>` : ""}</div>
+      ${B[2] ? `<div class="sub">Тумбы и сейфы · ${B[2]}</div><div>${[...Array(B[2])].map((_, j) => cell(b[1], BST, 0, j, "s")).join("")}</div>` : ""}
+      ${B[3] ? `<div class="sub">Стеллажи (груз) · ${B[3]}</div><div>${[...Array(B[3])].map((_, j) => cell(b[2], BRK, 0, j, "r")).join("")}</div>` : ""}</div>`; }).join("");
+  $("bb").innerHTML = `<div class="chips">${BBLD.filter(b => b[8]).map(b => `<button class="chip" data-main="${b[0]}" aria-pressed="${b[0] === BB.main}">${b[1]}</button>`).join("")}</div>
+    <div class="chips" style="margin-top:6px">${BBLD.filter(b => !b[8]).map(b => `<button class="chip" data-add="${b[0]}" style="padding:4px 10px">＋ ${b[1]}</button>`).join("")}</div>${html}
+    <div class="row" style="gap:8px"><button class="btn ghost" id="bb-best" style="flex:1">⚡ Всё лучшее</button><button class="btn ghost" id="bb-clr" style="flex:1">Очистить мебель</button></div>
+    <div class="res" style="margin-top:6px"><span>Мест под груз (на стеллажах)</span><b class="hi">${cargo}</b><span>Из них под замком</span><b>${locked}</b>
+      <span>Тумб и сейфов</span><b>${st} / ${stMax}${safes ? ` (сейфов ${safes})` : ""}</b><span>Стеллажей</span><b>${rk} / ${rkMax}</b><span>Верстаков для груза</span><b>${benches}</b><span>Слотов предохранителей</span><b>${fuses}</b>
+      <span>Постройки</span><b>${money(pBld)}</b><span>Мебель</span><b>${money(pFur)}</b><span>Всего</span><b class="hi">${money(pBld + pFur)}</b></div>
+    <p class="note">Сейфы и стеллажи-клетки без <b>мастер-ключа</b> не вскрыть. Сколько внешних построек влезает на участок, зависит от участка. Места — robrun.pro и wikily.gg (данные клиента игры), цены — базовые цены покупки.</p>`;
+}
+$("bb").addEventListener("click", e => {
+  const t = e.target.closest("button"); if (!t) return; const d = t.dataset;
+  if (d.main) BB.main = d.main;
+  else if (d.add) BB.out.push([d.add, [], []]);
+  else if (d.rmb) BB.out.splice(+d.rmb - 1, 1);
+  else if (d.k) { const b = bbAll()[+d.b], arr = d.k === "s" ? b[1] : b[2], T = d.k === "s" ? BST : BRK; arr[+d.j] = ((arr[+d.j] || 0) + 1) % T.length; if (+d.b === 0) BB.m = [b[1], b[2]]; }
+  else if (t.id === "bb-best") { bbAll().forEach((b, i) => { const B = bbB(b[0]); b[1].length = 0; b[2].length = 0; for (let j = 0; j < B[2]; j++) b[1].push(6); for (let j = 0; j < B[3]; j++) b[2].push(6); if (!i) BB.m = [b[1], b[2]]; }); }
+  else if (t.id === "bb-clr") { bbAll().forEach((b, i) => { b[1].length = 0; b[2].length = 0; if (!i) BB.m = [b[1], b[2]]; }); }
+  else return;
+  save("bb", BB); haptic(); renderBB();
+});
+
+/* ---------- ⚗ Доход химлабы ---------- */
+// цены контрабандиста (без известности): реагенты, концентрат, кристаллы — robrun.pro
+const LAB = {reag: [["Канистры с реагентами", 20000], ["Качественные реагенты", 30000]], conc: [10000, 15000, 25000], hard: [30000, 45000, 75000]};
+let labS = load("lab", {r: 0, n: 1, cyc: 60, frz: 30, t: 1, hrs: 6});
+function renderLab(){
+  const hard = LAB.hard[labS.t - 1] || 0, reag = LAB.reag[labS.r][1], gain = hard - reag, cycle = labS.cyc + labS.frz;
+  const perCycle = gain * labS.n, perHour = perCycle * 60 / Math.max(1, Math.max(labS.cyc, labS.frz));
+  $("lab").innerHTML = `<p class="sub">Цепочка: канистра реагентов → <b>реактор</b> (концентрат) → <b>морозильник</b> (твёрдые кристаллы) → контрабандисту или на лабораторный стол (порошок, стопками по 10).</p>
+    <div class="grid2"><label><span class="sub">Реагенты</span><select id="lb-r">${LAB.reag.map((x, i) => `<option value="${i}"${i === labS.r ? " selected" : ""}>${x[0]} (${money(x[1])})</option>`).join("")}</select></label>
+    <label><span class="sub">Что выходит</span><select id="lb-t">${[[1, "Кристаллы ур. 1 — 30 000 $"], [2, "Кристаллы ур. 2 — 45 000 $"], [3, "Кристаллы ур. 3 — 75 000 $"]].map(x => `<option value="${x[0]}"${x[0] === labS.t ? " selected" : ""}>${x[1]}</option>`).join("")}</select></label>
+    <label><span class="sub">Реакторов</span><input type="number" id="lb-n" inputmode="numeric" min="1" max="6" value="${labS.n}"></label>
+    <label><span class="sub">Варка в реакторе, мин</span><input type="number" id="lb-c" inputmode="numeric" min="5" max="240" value="${labS.cyc}"></label>
+    <label><span class="sub">Заморозка, мин</span><input type="number" id="lb-f" inputmode="numeric" min="1" max="240" value="${labS.frz}"></label></div>
+    <div class="res" style="margin-top:6px"><span>Канистру можно просто продать за</span><b>${money(reag)}</b><span>Кристаллы у контрабандиста</span><b>${money(hard)}</b>
+      <span>Навар с одной канистры</span><b class="hi">${gain >= 0 ? "+" : ""}${money(gain)}</b><span>Партия (${labS.n} реакт.)</span><b class="hi">${money(perCycle)}</b>
+      <span>Один полный цикл</span><b>${cycle} мин</b><span>💵 Навар в час (конвейером)</span><b class="hi">${money(perHour)}</b></div>
+    <p class="note">Цены контрабандиста без бонуса известности — robrun.pro (из файлов игры). Какой уровень кристаллов дают обычные и качественные реагенты и сколько порошка выходит из одного кристалла, игра не показывает напрямую <span class="tag rumor">не подтверждено</span>: продай партию и пришли цену в боте через /price. Реактор I ≈60 мин, реактор II — 53 мин. Прерванная варка — реагент пропадает. Лаба дымит — её видно издалека.</p>`;
+  const upd = () => { labS = {r: +$("lb-r").value, t: +$("lb-t").value, n: Math.max(1, Math.min(6, +$("lb-n").value || 1)), cyc: Math.max(5, +$("lb-c").value || 60), frz: Math.max(1, +$("lb-f").value || 30)}; save("lab", labS); renderLab(); };
+  ["lb-r", "lb-t", "lb-n", "lb-c", "lb-f"].forEach(id => $(id).onchange = upd);
+}
 
 /* ---------- Советы из игры (внутриигровой справочник) ---------- */
 let TIPS = null;
@@ -1575,6 +1742,8 @@ function show(v){
   ["guide", "map", "items", "wipe", "calc", "timer", "info"].forEach(x => $("v-" + x).hidden = x !== v);
   if (v === "timer") loadTimers();
   if (v === "items") itShow(itMode);
+  if (v === "calc") renderBB();
+  if (v === "timer") renderLab();
   if (v === "map" && !rmCur) openReal(load("rmMap", "city"));
   document.querySelectorAll("nav.bar button").forEach(b => b.dataset.v === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
   if (v === "info") markNewsSeen();
